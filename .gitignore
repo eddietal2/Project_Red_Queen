@@ -119,3 +119,18 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# SvelteKit
+.svelte-kit/
+package/
+.env
+.env.local
+.env.production
+.env.development
+.vercel
+.netlify/
+dist/
+build/
+node_modules/
+pnpm-debug.log*
+pnpm-error.log*
