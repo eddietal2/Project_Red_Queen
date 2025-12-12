@@ -51,7 +51,9 @@ export default function RootLayout({
           </nav>
           <main className="pt-16">{children}</main>
           {/* Footer Section */}
-          <Footer />
+          <div className="backdrop-blur-lg bg-rq-black/90">
+            <Footer />
+          </div>
         </div>
       </body>
     </html>
