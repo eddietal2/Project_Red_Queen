@@ -1,12 +1,26 @@
 // 'use client';
 
 import type { Metadata } from "next";
-import ThemeWrapper from "./components/ThemeWrapper";
-import ThemeToggle from "./components/ThemeToggle";
+import { Exo_2, Fira_Code, Jura, Dancing_Script } from 'next/font/google';
 import BackButton from "./components/BackButton";
 import ParallaxBackground from "./components/ParallaxBackground";
 import "./globals.css";
 import Footer from "./components/Footer";
+
+const dancing_script = Dancing_Script({
+  subsets: ['latin'],
+  variable: '--font-dancing_script',
+});
+
+const firaCode = Fira_Code({
+  subsets: ['latin'],
+  variable: '--font-fira-code',
+});
+
+const jura = Jura({
+  subsets: ['latin'],
+  variable: '--font-jura',
+});
 
 export const metadata: Metadata = {
   title: "Project Red Queen",
@@ -20,31 +34,24 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-rq-black dark:bg-rq-blue">
+      <body className={`${jura.variable} ${dancing_script.variable} min-h-screen bg-rq-black font-jura`}>
         <ParallaxBackground />
         <div className="relative z-10">
-          <ThemeWrapper>
-            {/* Navigation */}
-            <nav
-              role="navigation"
-              className="bg-rq-blue dark:bg-rq-black shadow-md py-4 px-4 fixed top-0 w-full z-20"
-            >
-              <div className="max-w-4xl mx-auto flex justify-between items-center">
-                <div className="flex items-center">
-                  <BackButton />
-                  <a href="#" className="text-xl font-bold text-white">
-                    RQ.ai
-                  </a>
-                </div>
-                <div className="flex items-center">
-                  <ThemeToggle />
-                </div>
+          {/* Navigation */}
+          <nav
+            role="navigation"
+            className="bg-rq-black backdrop-blur-lg shadow-md py-4 px-4 fixed top-0 w-full z-20 border-b border-rq-red/20"
+          >
+            <div className="max-w-4xl mx-auto flex justify-between items-center">
+              <div className="flex items-center">
+                <BackButton />
+                <img src="/icons/RQAI_Logo.png" alt="RQ.ai" className="h-8 w-auto" />
               </div>
-            </nav>
-            <main className="pt-16">{children}</main>
-            {/* Footer Section */}
-            <Footer />
-          </ThemeWrapper>
+            </div>
+          </nav>
+          <main className="pt-16">{children}</main>
+          {/* Footer Section */}
+          <Footer />
         </div>
       </body>
     </html>

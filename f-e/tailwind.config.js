@@ -5,14 +5,20 @@ module.exports = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  safelist: ['font-dancing-script'], // Force include the class
   theme: {
     extend: {
       colors: {
-        'rq-blue': '#0a1a2e', // Deep blue for backgrounds
-        'rq-red': '#d32f2f',  // Crimson red for accents
-        'rq-black': '#121212', // Dark black for contrast
-        'rq-light-blue': '#1e3a5f', // Lighter blue for light mode
-        'rq-dark-red': '#b71c1c', // Darker red for dark mode
+        'rq-blue': '#0a1a2e',
+        'rq-red': '#d32f2f',
+        'rq-black': '#121212',
+        'rq-light-blue': '#1e3a5f',
+        'rq-dark-red': '#b71c1c',
+      },
+      fontFamily: {
+        'jura': ['var(--font-jura)'],
+        'dancing-script': ['var(--font-dancing_script)'],
+        'fira-code': ['var(--font-fira-code)'],
       },
     },
   },
