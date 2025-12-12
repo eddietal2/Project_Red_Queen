@@ -124,3 +124,27 @@
   }
 }
 
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a1a2e; /* rq-blue */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d32f2f; /* rq-red */
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b71c1c; /* rq-dark-red */
+}
+
+/* For Firefox (limited customization) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d32f2f #0a1a2e; /* thumb track */
+}
+

@@ -4,16 +4,16 @@ import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-rq-light-blue dark:bg-rq-black">
       {/* Hero Section */}
-      <header role="banner" className="flex items-center text-gray-900 dark:text-white min-h-[80vh] px-4">
+      <header role="banner" className="flex items-center text-white min-h-[80vh] px-4 bg-rq-red">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl font-bold mb-4">Welcome to Our Platform</h1>
           <p className="text-lg mb-6">
             Discover amazing features and start your journey today.
           </p>
           <Link href="/chat">
-            <Button className="bg-blue-600 text-white hover:bg-blue-700">
+            <Button className="bg-rq-blue text-white hover:bg-rq-dark-red">
               Start Chat
             </Button>
           </Link>
@@ -24,7 +24,7 @@ export default function Home() {
       <section
         role="region"
         aria-label="Features"
-        className="py-16 px-4 bg-white"
+        className="py-16 px-4 bg-rq-black dark:bg-rq-light-blue text-white"
       >
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold text-center mb-8 text-gray-900">
@@ -51,7 +51,7 @@ export default function Home() {
       <section
         role="region"
         aria-label="About"
-        className="py-16 px-4 bg-gray-50"
+        className="py-16 px-4 bg-rq-blue dark:bg-rq-black text-white"
       >
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">About This Software</h2>

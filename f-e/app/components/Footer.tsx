@@ -11,14 +11,14 @@ export default function Footer() {
   return (
     <footer
       role="contentinfo"
-      className="bg-gray-800 dark:bg-gray-900 text-white py-8 px-4 relative z-10"
+      className="bg-rq-black dark:bg-rq-blue text-white py-8 px-4 relative z-10"
     >
       <div className="max-w-4xl mx-auto text-center">
         <p className="text-sm text-gray-400 mb-2">
           Disclaimer: This project uses Capcom's intellectual property for educational purposes only. Not affiliated with Capcom.
         </p>
         <p className="text-xs text-gray-500">
-          <a href="/disclaimer" className="hover:text-gray-300 underline">
+          <a href="/disclaimer" className="hover:text-rq-red underline">
             Read full disclaimer
           </a>
         </p>
@@ -26,7 +26,7 @@ export default function Footer() {
           <a
             href="#"
             aria-label="GitHub"
-            className="mx-2 text-white hover:text-blue-400 inline-block"
+            className="mx-2 text-white hover:text-rq-red inline-block"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -40,7 +40,7 @@ export default function Footer() {
           <a
             href="#"
             aria-label="LinkedIn"
-            className="mx-2 text-white hover:text-blue-400 inline-block"
+            className="mx-2 text-white hover:text-rq-red inline-block"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

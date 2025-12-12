@@ -20,19 +20,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen relative">
+      <body className="min-h-screen bg-rq-black dark:bg-rq-blue">
         <ParallaxBackground />
         <div className="relative z-10">
           <ThemeWrapper>
             {/* Navigation */}
             <nav
               role="navigation"
-              className="bg-white dark:bg-gray-800 shadow-md py-4 px-4 fixed top-0 w-full z-20"
+              className="bg-rq-blue dark:bg-rq-black shadow-md py-4 px-4 fixed top-0 w-full z-20"
             >
               <div className="max-w-4xl mx-auto flex justify-between items-center">
                 <div className="flex items-center">
                   <BackButton />
-                  <a href="#" className="text-xl font-bold text-gray-900 dark:text-white">
+                  <a href="#" className="text-xl font-bold text-white">
                     RQ.ai
                   </a>
                 </div>
