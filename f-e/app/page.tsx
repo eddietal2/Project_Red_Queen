@@ -1,20 +1,21 @@
-
-
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Hero Section */}
-      <header role="banner" className="flex items-center bg-blue-600 text-white min-h-[80vh] px-4">
+      <header role="banner" className="flex items-center text-gray-900 dark:text-white min-h-[80vh] px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl font-bold mb-4">Welcome to Our Platform</h1>
           <p className="text-lg mb-6">
             Discover amazing features and start your journey today.
           </p>
-          <button className="bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-gray-100">
-            Start Chat
-          </button>
+          <Link href="/chat">
+            <button className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">
+              Start Chat
+            </button>
+          </Link>
         </div>
       </header>
 

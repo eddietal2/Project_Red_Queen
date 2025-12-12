@@ -3,6 +3,7 @@
 import type { Metadata } from "next";
 import ThemeWrapper from "./components/ThemeWrapper";
 import ThemeToggle from "./components/ThemeToggle";
+import BackButton from "./components/BackButton";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -25,9 +26,12 @@ export default function RootLayout({
             className="bg-white dark:bg-gray-800 shadow-md py-4 px-4 fixed top-0 w-full z-10"
           >
             <div className="max-w-4xl mx-auto flex justify-between items-center">
-              <a href="#" className="text-xl font-bold text-gray-900 dark:text-white">
-                Logo
-              </a>
+              <div className="flex items-center">
+                <BackButton />
+                <a href="#" className="text-xl font-bold text-gray-900 dark:text-white">
+                  Logo
+                </a>
+              </div>
               <div className="flex items-center">
                 <ThemeToggle />
               </div>
