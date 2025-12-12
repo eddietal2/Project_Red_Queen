@@ -7,7 +7,7 @@ export default function Home() {
     <div className="min-h-screen bg-rq-black">
       {/* Hero Section */}
       <header role="banner" className="flex items-center text-white min-h-[80vh] px-4">
-        <div className="max-w-4xl mx-auto p-12 shadow-lg text-center bg-rq-red/80 backdrop-blur-lg">
+        <div className="max-w-4xl mx-auto p-12 shad text-center bg-rq-red/80 backdrop-blur-lg">
           <h1 className="text-4xl font-bold mb-4">Welcome to the Red Queen AI.</h1>
           <p className="text-lg mb-6">
             Discover amazing features and start your journey today.
@@ -105,13 +105,9 @@ export default function Home() {
       >
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-8">About This Software</h2>
-          <p className="text-lg mb-8">
-            This software helps you achieve your goals with ease, built using modern technologies.
-          </p>
-          <h3 className="text-xl font-semibold mb-4">Technologies Used</h3>
           <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <div className="backdrop-blur-lg bg-rq-black/90 rounded-xl">
-              <li className="bg-rq-black/60 p-6 rounded-xl border border-rq-red/30 shadow-lg hover:shadow-xl hover:bg-rq-black/80 hover:border-rq-red/50 transition-all duration-300 min-h-64 flex flex-col justify-center">
+            <div className="backdrop-blur-lg bg-black/30 rounded-xl">
+              <li className="bg-rq-black/60 p-6 rounded-xl border border-[#999] shadow-lg hover:shadow-xl hover:bg-rq-black/80 hover:border-rq-red/50 transition-all duration-300 min-h-64 flex flex-col justify-center">
                 <div className="mb-4 flex">
                   <img src="/icons/nextjs-icon.svg" alt="NextJS" className="tech-icon w-12 h-12 mx-auto" />
                   <img src="/icons/react-icon.svg" alt="React" className="tech-icon w-12 h-12 mx-auto" />
@@ -119,8 +115,8 @@ export default function Home() {
                 <strong className="text-rq-red">NextJS</strong> - React framework for server-side rendering and full-stack development.
               </li>
             </div>
-            <div className="backdrop-blur-lg bg-rq-black/90 rounded-xl">
-              <li className="bg-rq-black/60 p-6 rounded-xl border border-rq-red/30 shadow-lg hover:shadow-xl hover:bg-rq-black/80 hover:border-rq-red/50 transition-all duration-300 min-h-64 flex flex-col justify-center">
+            <div className="backdrop-blur-lg bg-black/30 rounded-xl">
+              <li className="bg-rq-black/60 p-6 rounded-xl border border-[#999] shadow-lg hover:shadow-xl hover:bg-rq-black/80 hover:border-rq-red/50 transition-all duration-300 min-h-64 flex flex-col justify-center">
                 <div className="mb-4 flex">
                   <img src="/icons/python-icon.svg" alt="Python" className="tech-icon w-12 h-12 mx-auto" />
                   <img src="/icons/django-icon.svg" alt="Django" className="tech-icon w-12 h-12 mx-auto" />
@@ -128,8 +124,8 @@ export default function Home() {
                 <strong className="text-rq-red">Django</strong> - Python web framework for rapid backend development.
               </li>
             </div>
-            <div className="backdrop-blur-lg bg-rq-black/90 rounded-xl">
-              <li className="bg-rq-black/60 p-6 rounded-xl border border-rq-red/30 shadow-lg hover:shadow-xl hover:bg-rq-black/80 hover:border-rq-red/50 transition-all duration-300 min-h-64 flex flex-col justify-center">
+            <div className="backdrop-blur-lg bg-black/30 rounded-xl">
+              <li className="bg-rq-black/60 p-6 rounded-xl border border-[#999] shadow-lg hover:shadow-xl hover:bg-rq-black/80 hover:border-rq-red/50 transition-all duration-300 min-h-64 flex flex-col justify-center">
                 <div className="mb-4 flex">
                   <img src="/icons/google-icon.svg" alt="Google" className="tech-icon w-12 h-12 mx-auto" />
                   <img src="/icons/google-gemini-icon.svg" alt="Gemini" className="tech-icon w-12 h-12 mx-auto" />
@@ -137,16 +133,16 @@ export default function Home() {
                 <strong className="text-rq-red">Gemini 2.5 Flash</strong> - Advanced AI model for fast and accurate language processing.
               </li>
             </div>
-            <div className="backdrop-blur-lg bg-rq-black/90 rounded-xl">
-              <li className="bg-rq-black/60 p-6 rounded-xl border border-rq-red/30 shadow-lg hover:shadow-xl hover:bg-rq-black/80 hover:border-rq-red/50 transition-all duration-300 min-h-64 flex flex-col justify-center">
+            <div className="backdrop-blur-lg bg-black/30 rounded-xl">
+              <li className="bg-rq-black/60 p-6 rounded-xl border border-[#999] shadow-lg hover:shadow-xl hover:bg-rq-black/80 hover:border-rq-red/50 transition-all duration-300 min-h-64 flex flex-col justify-center">
                 <div className="mb-4 flex">
                   <img src="/icons/llamaindex-icon.svg" alt="Llama Index" className="tech-icon scale-300 w-12 h-12 mx-auto" />
                 </div>
                 <strong className="text-rq-red">Llama Index (for RAG)</strong> - Framework for building retrieval-augmented generation applications.
               </li>
             </div>
-            <div className="backdrop-blur-lg bg-rq-black/90 rounded-xl">
-              <li className="bg-rq-black/60 p-6 rounded-xl border border-rq-red/30 shadow-lg hover:shadow-xl hover:bg-rq-black/80 hover:border-rq-red/50 transition-all duration-300 min-h-64 flex flex-col justify-center">
+            <div className="backdrop-blur-lg bg-black/30 rounded-xl">
+              <li className="bg-rq-black/60 p-6 rounded-xl border border-[#999] shadow-lg hover:shadow-xl hover:bg-rq-black/80 hover:border-rq-red/50 transition-all duration-300 min-h-64 flex flex-col justify-center">
                 <div className="mb-4 flex">
                   <img src="/icons/tailwindcss-icon.svg" alt="TailwindCSS" className="tech-icon w-12 h-12 mx-auto" />
                   <img src="/icons/shadcn-icon.svg" alt="Shadcn" className="tech-icon w-12 h-12 mx-auto" />
@@ -154,8 +150,8 @@ export default function Home() {
                 <strong className="text-rq-red">TailwindCSS & Shadcn</strong> - Utility-first CSS framework and component library for modern UI.
               </li>
             </div>
-            <div className="backdrop-blur-lg bg-rq-black/90 rounded-xl">
-              <li className="bg-rq-black/60 p-6 rounded-xl border border-rq-red/30 shadow-lg hover:shadow-xl hover:bg-rq-black/80 hover:border-rq-red/50 transition-all duration-300 min-h-64 flex flex-col justify-center">
+            <div className="backdrop-blur-lg bg-black/30 rounded-xl">
+              <li className="bg-rq-black/60 p-6 rounded-xl border border-[#999] shadow-lg hover:shadow-xl hover:bg-rq-black/80 hover:border-rq-red/50 transition-all duration-300 min-h-64 flex flex-col justify-center">
                 <div className="mb-4 flex">
                   <img src="/icons/chroma-icon.svg" alt="ChromaDB" className="tech-icon w-12 h-12 mx-auto" />
                 </div>

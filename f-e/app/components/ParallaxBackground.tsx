@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 export default function ParallaxBackground() {
   const [offsetY, setOffsetY] = useState(0);
-  const [height, setHeight] = useState('130vh');
+  const [height, setHeight] = useState('100vh');
 
   useEffect(() => {
     const handleScroll = () => setOffsetY(window.pageYOffset);
@@ -24,7 +24,7 @@ export default function ParallaxBackground() {
     <div
       className="absolute inset-0 z-0"
       style={{
-        height,
+        height: '900px',
         backgroundImage: 'url(/images/umbrella_image.jpg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',

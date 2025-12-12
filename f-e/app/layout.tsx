@@ -2,13 +2,14 @@
 
 import type { Metadata } from "next";
 import { Exo_2, Fira_Code, Jura, Dancing_Script } from 'next/font/google';
+import { usePathname } from 'next/navigation';
 import BackButton from "./components/BackButton";
 import ParallaxBackground from "./components/ParallaxBackground";
 import "./globals.css";
 import Footer from "./components/Footer";
-import { usePathname } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { transform } from "next/dist/build/swc/generated-native";
 
 const dancing_script = Dancing_Script({
   subsets: ['latin'],
@@ -35,13 +36,26 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-
   const pathname = usePathname();
-  
+
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${jura.variable} ${dancing_script.variable} min-h-screen bg-rq-black font-jura`}>
+      <body
+        className={`${jura.variable} ${dancing_script.variable} min-h-screen font-jura`}
+        style={{
+          backgroundImage: 'url(/images/the_hive_visual.jpg)',
+          backgroundPosition: 'bottom',
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+          backgroundColor: '#000000', // Fallback to black if image fails
+          imageRendering: 'crisp-edges', // Improves sharpness on scaling
+          transform: `translateY(00px)`,
+        }}
+      >
         <ParallaxBackground />
+        {/* Dark Gradient Overlay */}
+        <div className="absolute inset-0 z-5 bg-gradient-to-b from-transparent to-rq-black"></div>
         <div className="relative z-10">
           {/* Navigation */}
           <nav
