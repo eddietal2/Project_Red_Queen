@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen">
       {/* Hero Section */}
       <header role="banner" className="flex items-center text-gray-900 dark:text-white min-h-[80vh] px-4">
         <div className="max-w-4xl mx-auto text-center">
