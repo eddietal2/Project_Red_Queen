@@ -7,10 +7,12 @@ export default function Home() {
     <div className="min-h-screen bg-rq-black">
       {/* Hero Section */}
       <header role="banner" className="flex items-center text-white min-h-[80vh] px-4">
-        <div className="max-w-4xl mx-auto p-12 shad text-center bg-rq-red/80 backdrop-blur-lg hover:bg-red-900/10 hover:scale-105 transition-all duration-300 hover:shadow-xl">
-          <h1 className="text-4xl font-bold mb-4">Welcome to the Red Queen AI.</h1>
-          <p className="text-lg mb-6">
-            Discover amazing features and start your journey today.
+        <div className="max-w-4xl mx-auto p-12 shad text-center bg-black/80 backdrop-blur-lg hover:bg-red-900/10 hover:scale-105 transition-all duration-300 hover:shadow-xl">
+          <h1 className="text-4xl font-bold mb-4 typewriter"  style={{ fontFamily: 'Dancing Script, cursive' }}>
+            Welcome to RedQueen.AI.
+            </h1>
+          <p className="text-lg text-yellow-500 mb-6">
+            AI Agent for discovering Resident Evil Lore.
           </p>
           <Link href="/chat">
             <Button className="red-button text-white hover:bg-rq-dark-red hover:scale-105 hover:shadow-lg transition-all duration-300">
@@ -28,11 +30,11 @@ export default function Home() {
           className="py-16 px-4 text-white"
         >
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">
+            <h2 className="text-3xl font-bold text-center mb-12" style={{ fontFamily: 'Dancing Script, cursive' }}>
               Features
             </h2>
             <ul className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <li className="bg-rq-blue/20 p-6 rounded-lg border border-rq-red/30 bg-rq-red/80 backdrop-blur-lg hover:bg-red-900/10 hover:scale-105 transition-all duration-300 hover:shadow-xl text-center">
+              <li className="bg-black/80 p-6 rounded-lg border border-rq-red/30 bg-rq-red/80 backdrop-blur-lg hover:bg-red-900/10 hover:scale-105 transition-all duration-300 hover:shadow-xl text-center">
                 <div className="mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -52,7 +54,7 @@ export default function Home() {
                 <h3 className="text-xl font-semibold mb-2">RAG-Powered Chatbot</h3>
                 <p>Leveraging Gemini LLM and Llama Index for factually accurate, character-consistent responses embodying the Red Queen persona.</p>
               </li>
-              <li className="bg-rq-blue/20 p-6 rounded-lg border border-rq-red/30 bg-rq-red/80 backdrop-blur-lg hover:bg-red-900/10 hover:scale-105 transition-all duration-300 hover:shadow-xl text-center">
+              <li className="bg-black/80 p-6 rounded-lg border border-rq-red/30 bg-rq-red/80 backdrop-blur-lg hover:bg-red-900/10 hover:scale-105 transition-all duration-300 hover:shadow-xl text-center">
                 <div className="mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -72,7 +74,7 @@ export default function Home() {
                 <h3 className="text-xl font-semibold mb-2">Decoupled Architecture</h3>
                 <p>Django backend for AI logic and data management, paired with a modern frontend for responsive, high-performance UI.</p>
               </li>
-              <li className="bg-rq-blue/20 p-6 rounded-lg border border-rq-red/30 bg-rq-red/80 backdrop-blur-lg hover:bg-red-900/10 hover:scale-105 transition-all duration-300 hover:shadow-xl text-center">
+              <li className="bg-black/80 p-6 rounded-lg border border-rq-red/30 bg-rq-red/80 backdrop-blur-lg hover:bg-red-900/10 hover:scale-105 transition-all duration-300 hover:shadow-xl text-center">
                 <div className="mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -104,7 +106,7 @@ export default function Home() {
         className="py-16 px-4 bg-rq-blue text-white"
       >
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-8">About This Software</h2>
+          <h2 className="text-3xl font-bold mb-8" style={{ fontFamily: 'Dancing Script, cursive' }}>About This Software</h2>
           <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <div className="backdrop-blur-lg bg-black/30 rounded-xl hover:shadow-xl hover:bg-red-900/10 hover:border-rq-red/50 hover:scale-105 transition-all duration-300">
               <li className="bg-rq-black/60 p-6 rounded-xl border border-[#999] shadow-lg min-h-64 flex flex-col justify-center">

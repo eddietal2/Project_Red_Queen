@@ -9,7 +9,7 @@ export default function BackButton() {
 
   return (
     <Link href="/">
-      <button className="mr-4 text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300 flex items-center">
+      <button className="mr-4 text-white hover:text-gray-700 dark:hover:text-gray-300 flex items-center">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
