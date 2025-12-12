@@ -6,14 +6,14 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-rq-black">
       {/* Hero Section */}
-      <header role="banner" className="flex items-center text-white min-h-[80vh] px-4 bg-rq-red">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl font-bold mb-4">Welcome to Our Platform</h1>
+      <header role="banner" className="flex items-center text-white min-h-[80vh] px-4">
+        <div className="max-w-4xl mx-auto p-12 shadow-lg text-center bg-rq-red/80 backdrop-blur-lg">
+          <h1 className="text-4xl font-bold mb-4">Welcome to the Red Queen AI.</h1>
           <p className="text-lg mb-6">
             Discover amazing features and start your journey today.
           </p>
           <Link href="/chat">
-            <Button className="bg-rq-blue text-white hover:bg-rq-dark-red">
+            <Button className="red-button text-white hover:bg-rq-dark-red">
               Start Chat
             </Button>
           </Link>

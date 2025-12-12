@@ -148,8 +148,7 @@
   scrollbar-color: #d32f2f #0a1a2e; /* thumb track */
 }
 
-.tech-icon {
-  fill: #b71c1c;
-  /* filter: brightness(0) saturate(100%) invert(15%) sepia(96%) saturate(745%) hue-rotate(0deg) brightness(95%) contrast(95%); */
+.red-button {
+  background: #b71c1c;
 }
 
