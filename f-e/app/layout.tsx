@@ -45,12 +45,11 @@ export default function RootLayout({
         style={{
           backgroundImage: 'url(/images/the_hive_visual.jpg)',
           backgroundPosition: 'bottom',
-          backgroundSize: 'contain',
+          backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
           backgroundAttachment: 'fixed',
           backgroundColor: '#000000', // Fallback to black if image fails
           imageRendering: 'crisp-edges', // Improves sharpness on scaling
-          transform: `translateY(00px)`,
         }}
       >
         <ParallaxBackground />
@@ -68,13 +67,11 @@ export default function RootLayout({
                 <img src="/icons/RQAI_Logo.png" alt="RQ.ai" className="h-8 w-auto" />
               </div>
               <div className="flex items-center">
-                {pathname === '/chat' && (
-                  <Link href="/disclaimer">
-                    <Button className="bg-rq-red text-white hover:bg-rq-dark-red">
-                      Disclaimer
-                    </Button>
-                  </Link>
-                )}
+                <Link href="/disclaimer">
+                  <Button className="bg-rq-red text-white hover:bg-rq-dark-red">
+                    Disclaimer
+                  </Button>
+                </Link>
               </div>
             </div>
           </nav>
