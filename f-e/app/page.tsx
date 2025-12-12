@@ -32,7 +32,7 @@ export default function Home() {
               Features
             </h2>
             <ul className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <li className="bg-rq-blue/20 p-6 rounded-lg hover:bg-rq-blue/30 transition-colors duration-300 text-center">
+              <li className="bg-rq-blue/20 p-6 rounded-lg border border-rq-red/30 shadow-lg hover:shadow-xl hover:bg-rq-blue/30 hover:border-rq-red/50 transition-all duration-300 text-center">
                 <div className="mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -49,10 +49,10 @@ export default function Home() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Feature One</h3>
-                <p>Benefit of feature one with enhanced capabilities.</p>
+                <h3 className="text-xl font-semibold mb-2">RAG-Powered Chatbot</h3>
+                <p>Leveraging Gemini LLM and Llama Index for factually accurate, character-consistent responses embodying the Red Queen persona.</p>
               </li>
-              <li className="bg-rq-blue/20 p-6 rounded-lg hover:bg-rq-blue/30 transition-colors duration-300 text-center">
+              <li className="bg-rq-blue/20 p-6 rounded-lg border border-rq-red/30 shadow-lg hover:shadow-xl hover:bg-rq-blue/30 hover:border-rq-red/50 transition-all duration-300 text-center">
                 <div className="mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -69,10 +69,10 @@ export default function Home() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Feature Two</h3>
-                <p>Benefit of feature two for better efficiency.</p>
+                <h3 className="text-xl font-semibold mb-2">Decoupled Architecture</h3>
+                <p>Django backend for AI logic and data management, paired with a modern frontend for responsive, high-performance UI.</p>
               </li>
-              <li className="bg-rq-blue/20 p-6 rounded-lg hover:bg-rq-blue/30 transition-colors duration-300 text-center">
+              <li className="bg-rq-blue/20 p-6 rounded-lg border border-rq-red/30 shadow-lg hover:shadow-xl hover:bg-rq-blue/30 hover:border-rq-red/50 transition-all duration-300 text-center">
                 <div className="mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -85,12 +85,12 @@ export default function Home() {
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"
+                      d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375"
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Feature Three</h3>
-                <p>Benefit of feature three with advanced tools.</p>
+                <h3 className="text-xl font-semibold mb-2">Vector Database Integration</h3>
+                <p>ChromaDB for efficient storage and retrieval of curated lore, ensuring accurate and consistent AI responses.</p>
               </li>
             </ul>
           </div>
