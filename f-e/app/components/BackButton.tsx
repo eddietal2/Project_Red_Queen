@@ -1,6 +1,12 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function BackButton() {
+  const pathname = usePathname();
+  if (pathname === '/') return null;
+
   return (
     <Link href="/">
       <button className="mr-4 text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-300 flex items-center">

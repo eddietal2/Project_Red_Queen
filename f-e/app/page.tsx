@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
@@ -12,9 +13,9 @@ export default function Home() {
             Discover amazing features and start your journey today.
           </p>
           <Link href="/chat">
-            <button className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">
+            <Button className="bg-blue-600 text-white hover:bg-blue-700">
               Start Chat
-            </button>
+            </Button>
           </Link>
         </div>
       </header>
