@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+
 export default function Disclaimer() {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white px-4 py-8">
@@ -12,6 +15,11 @@ export default function Disclaimer() {
         <p className="text-lg">
           This is for educational use only.
         </p>
+        <div className="text-center mb-6">
+          <Link href="/">
+            <Button>Close</Button>
+          </Link>
+        </div>
       </div>
     </div>
   );
