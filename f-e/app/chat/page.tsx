@@ -2,9 +2,12 @@
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import RedQueenAvatar from "@/components/RedQueenAvatar";
 
 export default function Chat() {
+  const [isTalking, setIsTalking] = useState(false);
+
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => {
@@ -12,29 +15,19 @@ export default function Chat() {
     };
   }, []);
 
+  function handleSend() {
+    // demo: trigger talking for 1.5s
+    setIsTalking(true);
+    setTimeout(() => setIsTalking(false), 1500);
+  }
+
   return (
     <div className="h-[91vh] flex">
       {/* Sidebar - Chat History */}
       <aside className="w-64 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
         {/* Red Queen AI Visualization Section */}
-        <div className="p-4 border-b bg-black border-gray-200 dark:border-gray-700 text-center">
-          <h1 className="text-lg font-bold text-white mb-2">Red Queen AI</h1>
-          <div className="flex justify-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="#999"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-12 h-12 text-rq-red"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25"
-              />
-            </svg>
-          </div>
+        <div className="mx-auto">
+          <RedQueenAvatar  />
         </div>
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <Button className="w-full">New Chat</Button>
@@ -81,7 +74,7 @@ export default function Chat() {
                 placeholder="Type your message..."
                 className="flex-1"
               />
-              <Button>Send</Button>
+              <Button onClick={handleSend}>Send</Button>
             </div>
           </div>
         </div>
