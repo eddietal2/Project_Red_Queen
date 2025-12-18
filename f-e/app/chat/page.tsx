@@ -32,14 +32,12 @@ export default function Chat() {
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <Button className="w-full">New Chat</Button>
         </div>
+        {/* Chat History */}
         <div className="flex-1 p-4">
-          <h2 className="text-sm font-semibold text-white mb-2">Chat History</h2>
+          <h2 className="text-md font-semibold text-white mb-4">Chat History</h2>
           <div className="space-y-2">
-            <div className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+            <div className="p-2 backdrop-blur-lg bg-white/70 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
               <p className="text-sm truncate">Previous Chat 1</p>
-            </div>
-            <div className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-              <p className="text-sm truncate">Previous Chat 2</p>
             </div>
             {/* Add more mock chats */}
           </div>
@@ -51,28 +49,25 @@ export default function Chat() {
         {/* Chat Messages */}
         <div className="flex-1 p-4 overflow-y-auto">
           <div className="max-w-4xl mx-auto space-y-4">
-            {/* Mock messages */}
-            <div className="flex justify-start">
-              <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow max-w-xs">
-                <p className="text-sm">Hello! How can I help you today?</p>
-              </div>
+            {/* Red Queen AI Mock message */}
+            <div className="p-3 text-black border-l-4 border-red-500 backdrop-blur-lg bg-white/70 rounded-md">
+              <p className="text-lg">Hello! How can I help you today?</p>
             </div>
-            <div className="flex justify-end">
-              <div className="bg-blue-500 text-white p-3 rounded-lg shadow max-w-xs">
-                <p className="text-sm">Tell me about Resident Evil lore.</p>
-              </div>
+            {/* User Mock message */}
+            <div className="p-3 text-black border-r-4 border-blue-500 backdrop-blur-lg bg-white/70 rounded-md">
+              <p className="text-lg text-right">Tell me about Resident Evil lore.</p>
             </div>
           </div>
         </div>
 
         {/* Input Area */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <div className="max-w-4xl mx-auto">
             <div className="flex space-x-2">
               <Input
                 type="text"
                 placeholder="Type your message..."
-                className="flex-1"
+                className="flex-1 backdrop-blur-lg bg-white/70 focus:ring-2 focus:ring-red-500"
               />
               <Button onClick={handleSend}>Send</Button>
             </div>
