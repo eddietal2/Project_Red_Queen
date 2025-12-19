@@ -16,8 +16,11 @@ def hello(request):
     return JsonResponse({'message': message, 'llm_model': getattr(llm, 'model', 'gemini-2.5-flash')})
 
 @csrf_exempt
-@require_http_methods(["POST"])
 def chat(request):
+    if request.method == 'OPTIONS':
+        return JsonResponse({})
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
     try:
         data = json.loads(request.body)
         question = data.get('question', '')
