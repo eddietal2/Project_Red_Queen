@@ -5,8 +5,17 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import RedQueenAvatar from "@/components/RedQueenAvatar";
 
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 export default function Chat() {
   const [isTalking, setIsTalking] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    { role: 'assistant', content: 'Hello! How can I help you today?' }
+  ]);
+  const [inputValue, setInputValue] = useState('');
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -15,10 +24,30 @@ export default function Chat() {
     };
   }, []);
 
-  function handleSend() {
-    // demo: trigger talking for 1.5s
+  async function handleSend() {
+    if (!inputValue.trim()) return;
+
+    const userMessage: Message = { role: 'user', content: inputValue };
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue('');
     setIsTalking(true);
-    setTimeout(() => setIsTalking(false), 1500);
+
+    try {
+      const response = await fetch('http://localhost:8000/ai/chat/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: inputValue }),
+      });
+      const data = await response.json();
+      const assistantMessage: Message = { role: 'assistant', content: data.answer || 'Sorry, I couldn\'t generate a response.' };
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Error:', error);
+      const errorMessage: Message = { role: 'assistant', content: 'Sorry, there was an error connecting to the AI.' };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsTalking(false);
+    }
   }
 
   return (
@@ -27,10 +56,10 @@ export default function Chat() {
       <aside className="w-64 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
         {/* Red Queen AI Visualization Section */}
         <div className="mx-auto">
-          <RedQueenAvatar  />
+          <RedQueenAvatar isTalking={isTalking} />
         </div>
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <Button className="w-full">New Chat</Button>
+          <Button className="w-full" onClick={() => setMessages([{ role: 'assistant', content: 'Hello! How can I help you today?' }])}>New Chat</Button>
         </div>
         {/* Chat History */}
         <div className="flex-1 p-4">
@@ -49,14 +78,13 @@ export default function Chat() {
         {/* Chat Messages */}
         <div className="flex-1 p-4 overflow-y-auto">
           <div className="max-w-4xl mx-auto space-y-4">
-            {/* Red Queen AI Mock message */}
-            <div className="p-3 text-black border-l-4 border-red-500 backdrop-blur-lg bg-white/70 rounded-md">
-              <p className="text-lg">Hello! How can I help you today?</p>
-            </div>
-            {/* User Mock message */}
-            <div className="p-3 text-black border-r-4 border-blue-500 backdrop-blur-lg bg-white/70 rounded-md">
-              <p className="text-lg text-right">Tell me about Resident Evil lore.</p>
-            </div>
+            {messages.map((message, index) => (
+              <div key={index} className={`p-3 text-black backdrop-blur-lg bg-white/70 rounded-md ${
+                message.role === 'assistant' ? 'border-l-4 border-red-500' : 'border-r-4 border-blue-500 text-right'
+              }`}>
+                <p className="text-lg">{message.content}</p>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -68,8 +96,11 @@ export default function Chat() {
                 type="text"
                 placeholder="Type your message..."
                 className="flex-1 backdrop-blur-lg bg-white/70 focus:ring-2 focus:ring-red-500"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
               />
-              <Button onClick={handleSend}>Send</Button>
+              <Button onClick={handleSend} disabled={isTalking}>Send</Button>
             </div>
           </div>
         </div>
