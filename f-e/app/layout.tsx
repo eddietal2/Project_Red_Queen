@@ -64,7 +64,7 @@ export default function RootLayout({
             <div className="max-w-4xl mx-auto flex justify-between items-center">
               <div className="flex items-center">
                 <BackButton />
-                <img src="/icons/RQAI_Logo.png" alt="RQ.ai" className="h-8 w-auto" />
+                <h1 className="text-xl text-white text-yellow-500 font-bold" style={{ fontFamily: 'Dancing Script, cursive' }}>RedQueen.AI</h1>
               </div>
               <div className="flex items-center">
                 <Link href="/disclaimer">
