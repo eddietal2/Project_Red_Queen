@@ -190,6 +190,7 @@ dependencies = [
     { name = "django", version = "6.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "google-generativeai" },
     { name = "llama-index" },
+    { name = "python-dotenv" },
 ]
 
 [package.metadata]
@@ -197,6 +198,7 @@ requires-dist = [
     { name = "django", specifier = ">=5.2.9" },
     { name = "google-generativeai" },
     { name = "llama-index" },
+    { name = "python-dotenv", specifier = ">=1.2.1" },
 ]
 
 [[package]]
