@@ -2,7 +2,18 @@
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useEffect, useState, useRef } from "react";
 import RedQueenAvatar from "@/components/RedQueenAvatar";
 
 interface Message {
@@ -23,6 +34,13 @@ export default function Chat() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const [inputValue, setInputValue] = useState('');
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
+  const [renameValue, setRenameValue] = useState('');
+  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
+  const [sessionToRename, setSessionToRename] = useState<string | null>(null);
 
   const currentSession = sessions.find(s => s.id === currentSessionId);
 
@@ -31,6 +49,18 @@ export default function Chat() {
     loadSessions();
     return () => {
       document.body.style.overflow = 'auto';
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenuId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
@@ -75,6 +105,48 @@ export default function Chat() {
     setCurrentSessionId(sessionId);
   };
 
+  const renameSession = (sessionId: string) => {
+    const session = sessions.find(s => s.id === sessionId);
+    if (session) {
+      setRenameValue(session.name);
+      setSessionToRename(sessionId);
+      setIsRenameDialogOpen(true);
+    }
+    setOpenMenuId(null);
+  };
+
+  const confirmRename = () => {
+    if (sessionToRename && renameValue.trim()) {
+      const updatedSessions = sessions.map(s => s.id === sessionToRename ? { ...s, name: renameValue.trim() } : s);
+      saveSessions(updatedSessions);
+    }
+    setIsRenameDialogOpen(false);
+    setSessionToRename(null);
+    setRenameValue('');
+  };
+
+  const deleteSession = (sessionId: string) => {
+    setSessionToDelete(sessionId);
+    setIsDeleteDialogOpen(true);
+    setOpenMenuId(null);
+  };
+
+  const confirmDelete = () => {
+    if (sessionToDelete) {
+      const updatedSessions = sessions.filter(s => s.id !== sessionToDelete);
+      saveSessions(updatedSessions);
+      if (sessionToDelete === currentSessionId) {
+        if (updatedSessions.length > 0) {
+          setCurrentSessionId(updatedSessions[0].id);
+        } else {
+          createNewSession();
+        }
+      }
+    }
+    setIsDeleteDialogOpen(false);
+    setSessionToDelete(null);
+  };
+
   async function handleSend() {
     if (!inputValue.trim() || !currentSession) return;
 
@@ -113,75 +185,155 @@ export default function Chat() {
   }
 
   return (
-    <div className="h-[91vh] flex">
-      {/* Sidebar - Chat History */}
-      <aside className="w-64 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
-        {/* Red Queen AI Visualization Section */}
-        <div className="mx-auto">
-          <RedQueenAvatar isTalking={isTalking} />
-        </div>
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <Button className="w-full" onClick={createNewSession}>New Chat</Button>
-        </div>
-        {/* Chat History */}
-        <div className="flex-1 p-4">
-          <h2 className="text-md font-semibold text-white mb-4">Chat Sessions</h2>
-          <div className="space-y-2">
-            {sessions.map((session) => (
-              <div
-                key={session.id}
-                className={`p-2 backdrop-blur-lg bg-white/70 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${
-                  session.id === currentSessionId ? 'border-2 border-red-500' : ''
-                }`}
-                onClick={() => switchSession(session.id)}
-              >
-                <p className="text-sm truncate">{session.name}</p>
-                <p className="text-xs text-gray-500">{new Date(session.createdAt).toLocaleDateString()}</p>
-              </div>
-            ))}
+    <>
+      <div className="h-[91vh] flex">
+        {/* Sidebar - Chat History */}
+        <aside className="w-64 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+          {/* Red Queen AI Visualization Section */}
+          <div className="mx-auto">
+            <RedQueenAvatar isTalking={isTalking} />
           </div>
-        </div>
-      </aside>
-
-      {/* Main Chat Area */}
-      <main className="flex-1 flex flex-col">
-        {/* Chat Messages */}
-        <div className="flex-1 p-4 overflow-y-auto">
-          <div className="max-w-4xl mx-auto space-y-4">
-            {currentSession?.messages.map((message, index) => (
-              <div key={index} className={`p-3 text-black backdrop-blur-lg bg-white/70 rounded-md ${
-                message.role === 'assistant' ? 'border-l-4 border-red-500' : 'border-r-4 border-blue-500 text-right'
-              }`}>
-                {message.isLoading ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
-                    <p className="text-lg">Thinking...</p>
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <Button className="w-full" onClick={createNewSession}>New Chat</Button>
+          </div>
+          {/* Chat History */}
+          <div className="flex-1 p-4">
+            <h2 className="text-md font-semibold text-white mb-4">Chat Sessions</h2>
+            <div className="space-y-2">
+              {sessions.map((session) => (
+                <div key={session.id} className="relative">
+                  <div
+                    className={`p-2 backdrop-blur-lg bg-white/70 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex justify-between items-center ${
+                      session.id === currentSessionId ? 'border-2 border-red-500' : ''
+                    }`}
+                    onClick={() => switchSession(session.id)}
+                  >
+                    <div>
+                      <p className="text-sm truncate">{session.name}</p>
+                      <p className="text-xs text-gray-500">{new Date(session.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <button
+                      className="text-gray-500 hover:text-gray-700 p-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenMenuId(openMenuId === session.id ? null : session.id);
+                      }}
+                    >
+                      ⋮
+                    </button>
                   </div>
-                ) : (
-                  <p className="text-lg">{message.content}</p>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Input Area */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex space-x-2">
-              <Input
-                type="text"
-                placeholder="Type your message..."
-                className="flex-1 backdrop-blur-lg bg-white/70 focus:ring-2 focus:ring-red-500"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              />
-              <Button onClick={handleSend} disabled={isTalking}>Send</Button>
+                  {openMenuId === session.id && (
+                    <div ref={menuRef} className="absolute right-0 mt-1 w-32 bg-white border border-gray-300 rounded shadow-lg z-10">
+                      <button
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                        onClick={() => renameSession(session.id)}
+                      >
+                        Rename
+                      </button>
+                      <button
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-red-600"
+                        onClick={() => deleteSession(session.id)}
+                      >
+                        Delete
+                      </button>
+                      <button
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 border-t"
+                        onClick={() => setOpenMenuId(null)}
+                      >
+                        Close
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-      </main>
-    </div>
+        </aside>
+
+        {/* Main Chat Area */}
+        <main className="flex-1 flex flex-col">
+          {/* Chat Messages */}
+          <div className="flex-1 p-4 overflow-y-auto">
+            <div className="max-w-4xl mx-auto space-y-4">
+              {currentSession?.messages.map((message, index) => (
+                <div key={index} className={`p-3 text-black backdrop-blur-lg bg-white/70 rounded-md ${
+                  message.role === 'assistant' ? 'border-l-4 border-red-500' : 'border-r-4 border-blue-500 text-right'
+                }`}>
+                  {message.isLoading ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
+                      <p className="text-lg">Thinking...</p>
+                    </div>
+                  ) : (
+                    <p className="text-lg">{message.content}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Input Area */}
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex space-x-2">
+                <Input
+                  type="text"
+                  placeholder="Type your message..."
+                  className="flex-1 backdrop-blur-lg bg-white/70 focus:ring-2 focus:ring-red-500"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                />
+                <Button onClick={handleSend} disabled={isTalking}>Send</Button>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Chat Session</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this chat session? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Rename Dialog */}
+      <AlertDialog open={isRenameDialogOpen} onOpenChange={setIsRenameDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Rename Chat Session</AlertDialogTitle>
+            <AlertDialogDescription>
+              Enter a new name for this chat session.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <Input
+              value={renameValue}
+              onChange={(e) => setRenameValue(e.target.value)}
+              placeholder="New session name"
+              onKeyDown={(e) => e.key === 'Enter' && confirmRename()}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRename} disabled={!renameValue.trim()}>
+              Rename
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
