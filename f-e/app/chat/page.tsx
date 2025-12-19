@@ -8,27 +8,83 @@ import RedQueenAvatar from "@/components/RedQueenAvatar";
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  isLoading?: boolean;
+}
+
+interface ChatSession {
+  id: string;
+  name: string;
+  messages: Message[];
+  createdAt: string;
 }
 
 export default function Chat() {
   const [isTalking, setIsTalking] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Hello! How can I help you today?' }
-  ]);
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const [inputValue, setInputValue] = useState('');
+
+  const currentSession = sessions.find(s => s.id === currentSessionId);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
+    loadSessions();
     return () => {
       document.body.style.overflow = 'auto';
     };
   }, []);
 
+  const loadSessions = () => {
+    const stored = localStorage.getItem('chatSessions');
+    if (stored) {
+      try {
+        const parsed: ChatSession[] = JSON.parse(stored);
+        setSessions(parsed);
+        if (parsed.length > 0) {
+          setCurrentSessionId(parsed[0].id);
+        } else {
+          createNewSession();
+        }
+      } catch (error) {
+        console.error('Error loading sessions:', error);
+        createNewSession();
+      }
+    } else {
+      createNewSession();
+    }
+  };
+
+  const saveSessions = (newSessions: ChatSession[]) => {
+    localStorage.setItem('chatSessions', JSON.stringify(newSessions));
+    setSessions(newSessions);
+  };
+
+  const createNewSession = () => {
+    const newSession: ChatSession = {
+      id: Date.now().toString(),
+      name: `Chat ${sessions.length + 1}`,
+      messages: [{ role: 'assistant', content: 'Hello! How can I help you today?' }],
+      createdAt: new Date().toISOString(),
+    };
+    const newSessions = [...sessions, newSession];
+    saveSessions(newSessions);
+    setCurrentSessionId(newSession.id);
+  };
+
+  const switchSession = (sessionId: string) => {
+    setCurrentSessionId(sessionId);
+  };
+
   async function handleSend() {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || !currentSession) return;
 
     const userMessage: Message = { role: 'user', content: inputValue };
-    setMessages(prev => [...prev, userMessage]);
+    const loadingMessage: Message = { role: 'assistant', content: '', isLoading: true };
+    const updatedMessages = [...currentSession.messages, userMessage, loadingMessage];
+    const updatedSession = { ...currentSession, messages: updatedMessages };
+    const updatedSessions = sessions.map(s => s.id === currentSessionId ? updatedSession : s);
+    saveSessions(updatedSessions);
+
     setInputValue('');
     setIsTalking(true);
 
@@ -40,11 +96,17 @@ export default function Chat() {
       });
       const data = await response.json();
       const assistantMessage: Message = { role: 'assistant', content: data.answer || 'Sorry, I couldn\'t generate a response.' };
-      setMessages(prev => [...prev, assistantMessage]);
+      const finalMessages = [...updatedMessages.slice(0, -1), assistantMessage]; // Replace loading
+      const finalSession = { ...updatedSession, messages: finalMessages };
+      const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
+      saveSessions(finalSessions);
     } catch (error) {
       console.error('Error:', error);
       const errorMessage: Message = { role: 'assistant', content: 'Sorry, there was an error connecting to the AI.' };
-      setMessages(prev => [...prev, errorMessage]);
+      const finalMessages = [...updatedMessages.slice(0, -1), errorMessage];
+      const finalSession = { ...updatedSession, messages: finalMessages };
+      const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
+      saveSessions(finalSessions);
     } finally {
       setIsTalking(false);
     }
@@ -59,16 +121,24 @@ export default function Chat() {
           <RedQueenAvatar isTalking={isTalking} />
         </div>
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <Button className="w-full" onClick={() => setMessages([{ role: 'assistant', content: 'Hello! How can I help you today?' }])}>New Chat</Button>
+          <Button className="w-full" onClick={createNewSession}>New Chat</Button>
         </div>
         {/* Chat History */}
         <div className="flex-1 p-4">
-          <h2 className="text-md font-semibold text-white mb-4">Chat History</h2>
+          <h2 className="text-md font-semibold text-white mb-4">Chat Sessions</h2>
           <div className="space-y-2">
-            <div className="p-2 backdrop-blur-lg bg-white/70 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-              <p className="text-sm truncate">Previous Chat 1</p>
-            </div>
-            {/* Add more mock chats */}
+            {sessions.map((session) => (
+              <div
+                key={session.id}
+                className={`p-2 backdrop-blur-lg bg-white/70 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${
+                  session.id === currentSessionId ? 'border-2 border-red-500' : ''
+                }`}
+                onClick={() => switchSession(session.id)}
+              >
+                <p className="text-sm truncate">{session.name}</p>
+                <p className="text-xs text-gray-500">{new Date(session.createdAt).toLocaleDateString()}</p>
+              </div>
+            ))}
           </div>
         </div>
       </aside>
@@ -78,11 +148,18 @@ export default function Chat() {
         {/* Chat Messages */}
         <div className="flex-1 p-4 overflow-y-auto">
           <div className="max-w-4xl mx-auto space-y-4">
-            {messages.map((message, index) => (
+            {currentSession?.messages.map((message, index) => (
               <div key={index} className={`p-3 text-black backdrop-blur-lg bg-white/70 rounded-md ${
                 message.role === 'assistant' ? 'border-l-4 border-red-500' : 'border-r-4 border-blue-500 text-right'
               }`}>
-                <p className="text-lg">{message.content}</p>
+                {message.isLoading ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
+                    <p className="text-lg">Thinking...</p>
+                  </div>
+                ) : (
+                  <p className="text-lg">{message.content}</p>
+                )}
               </div>
             ))}
           </div>
