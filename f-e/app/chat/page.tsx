@@ -46,6 +46,10 @@ export default function Chat() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [typingMessage, setTypingMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [openMessageMenuId, setOpenMessageMenuId] = useState<string | null>(null);
+  const messageMenuRef = useRef<HTMLDivElement>(null);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState('');
 
   const currentSession = sessions.find(s => s.id === currentSessionId);
 
@@ -61,6 +65,9 @@ export default function Chat() {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setOpenMenuId(null);
+      }
+      if (messageMenuRef.current && !messageMenuRef.current.contains(event.target as Node)) {
+        setOpenMessageMenuId(null);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -166,6 +173,91 @@ export default function Chat() {
     }
     setIsDeleteDialogOpen(false);
     setSessionToDelete(null);
+  };
+
+  const deleteMessage = (messageIndex: number) => {
+    if (currentSession) {
+      const updatedMessages = currentSession.messages.filter((_, index) => index !== messageIndex);
+      const updatedSession = { ...currentSession, messages: updatedMessages };
+      const updatedSessions = sessions.map(s => s.id === currentSessionId ? updatedSession : s);
+      saveSessions(updatedSessions);
+    }
+    setOpenMessageMenuId(null);
+  };
+
+  const editMessage = (messageIndex: number) => {
+    if (currentSession) {
+      setEditValue(currentSession.messages[messageIndex].content);
+      setEditingMessageId(`${messageIndex}`);
+    }
+    setOpenMessageMenuId(null);
+  };
+
+  const saveEdit = async (messageIndex: number) => {
+    if (!currentSession || !editValue.trim()) return;
+
+    // Update the user message
+    const updatedMessages = [...currentSession.messages];
+    updatedMessages[messageIndex] = { ...updatedMessages[messageIndex], content: editValue.trim() };
+
+    // Remove any subsequent messages (AI response and beyond)
+    const trimmedMessages = updatedMessages.slice(0, messageIndex + 1);
+
+    const updatedSession = { ...currentSession, messages: trimmedMessages };
+    const updatedSessions = sessions.map(s => s.id === currentSessionId ? updatedSession : s);
+    saveSessions(updatedSessions);
+
+    setEditingMessageId(null);
+    setEditValue('');
+
+    // Stop any ongoing typing
+    setIsTyping(false);
+    setTypingMessage('');
+
+    // Send new request
+    setIsTalking(true);
+    const loadingMessage: Message = { role: 'assistant', content: '', isLoading: true };
+    const finalMessages = [...trimmedMessages, loadingMessage];
+    const finalSession = { ...updatedSession, messages: finalMessages };
+    const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
+    saveSessions(finalSessions);
+
+    setTimeout(() => {
+      const messageElement = latestUserMessageRef.current;
+      if (messageElement && messagesContainerRef.current) {
+        const container = messagesContainerRef.current;
+        const messageRect = messageElement.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const scrollTop = container.scrollTop + (messageRect.top - containerRect.top);
+        container.scrollTo({ top: scrollTop, behavior: 'smooth' });
+      }
+    }, 100);
+
+    try {
+      const response = await fetch('http://localhost:8000/ai/chat/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: editValue.trim() }),
+      });
+      const data = await response.json();
+      const fullAnswer = data.answer || 'Sorry, I couldn\'t generate a response.';
+      setTypingMessage('');
+      setIsTyping(true);
+      const assistantMessage: Message = { role: 'assistant', content: fullAnswer };
+      const finalMessages2 = [...finalMessages.slice(0, -1), assistantMessage];
+      const finalSession2 = { ...finalSession, messages: finalMessages2 };
+      const finalSessions2 = sessions.map(s => s.id === currentSessionId ? finalSession2 : s);
+      saveSessions(finalSessions2);
+    } catch (error) {
+      console.error('Error:', error);
+      const errorMessage: Message = { role: 'assistant', content: 'Sorry, there was an error connecting to the AI.' };
+      const finalMessages2 = [...finalMessages.slice(0, -1), errorMessage];
+      const finalSession2 = { ...finalSession, messages: finalMessages2 };
+      const finalSessions2 = sessions.map(s => s.id === currentSessionId ? finalSession2 : s);
+      saveSessions(finalSessions2);
+    } finally {
+      setIsTalking(false);
+    }
   };
 
   async function handleSend() {
@@ -327,21 +419,71 @@ export default function Chat() {
                   const isLastAIMessage = message.role === 'assistant' && index === currentSession.messages.findLastIndex(m => m.role === 'assistant');
                   const isLatestUserMessage = message.role === 'user' && index === currentSession.messages.findLastIndex(m => m.role === 'user');
                   return (
-                  <div key={index} ref={isLatestUserMessage ? latestUserMessageRef : undefined} className={`p-3 text-black backdrop-blur-lg bg-white/70 rounded-md ${
-                    message.role === 'assistant' ? `border-l-4 border-red-500 ${isLastAIMessage ? 'mb-60' : ''}` : 'border-r-4 border-blue-500 text-right'
+                  <div key={index} ref={isLatestUserMessage ? latestUserMessageRef : undefined} className={`p-3 text-black backdrop-blur-lg bg-white/70 rounded-md relative z-10 ${
+                    message.role === 'assistant' ? `border-l-4 border-red-500 ${isLastAIMessage ? 'mb-70' : ''}` : 'border-r-4 border-blue-500 text-right'
                   }`}>
                     {message.isLoading ? (
                       <div className="flex items-center space-x-2">
                         <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
                         <p className="text-lg">Thinking...</p>
                       </div>
+                    ) : editingMessageId === `${index}` ? (
+                      <div className="flex space-x-2">
+                        <Input
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') saveEdit(index);
+                            if (e.key === 'Escape') setEditingMessageId(null);
+                          }}
+                          className="flex-1"
+                          autoFocus
+                        />
+                        <Button onClick={() => saveEdit(index)} size="sm">Save</Button>
+                        <Button onClick={() => setEditingMessageId(null)} variant="outline" size="sm">Cancel</Button>
+                      </div>
                     ) : (
-                      <p className="text-lg">
-                        {message.role === 'assistant' && index === currentSession.messages.length - 1 && isTyping
-                          ? typingMessage + (typingMessage.length < message.content.length ? '|' : '')
-                          : message.content
-                        }
-                      </p>
+                      <>
+                        {message.role === 'user' && (
+                          <button
+                            className="absolute top-2 left-2 text-gray-500 hover:text-gray-700 p-1"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenMessageMenuId(openMessageMenuId === `${index}` ? null : `${index}`);
+                            }}
+                          >
+                            ⋮
+                          </button>
+                        )}
+                        <p className={`text-lg ${message.role === 'user' ? 'ml-8' : ''}`}>
+                          {message.role === 'assistant' && index === currentSession.messages.length - 1 && isTyping
+                            ? typingMessage + (typingMessage.length < message.content.length ? '|' : '')
+                            : message.content
+                          }
+                        </p>
+                        {openMessageMenuId === `${index}` && message.role === 'user' && (
+                          <div ref={messageMenuRef} className="absolute left-0 top-8 mt-1 w-32 bg-white border border-gray-300 rounded shadow-lg !z-[999]">
+                            <button
+                              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                              onClick={() => editMessage(index)}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-red-600"
+                              onClick={() => deleteMessage(index)}
+                            >
+                              Delete
+                            </button>
+                            <button
+                              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                              onClick={() => setOpenMessageMenuId(null)}
+                            >
+                              Close
+                            </button>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                   );
