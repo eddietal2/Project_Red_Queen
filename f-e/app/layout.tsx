@@ -38,6 +38,26 @@ export default function RootLayout({
 }) {
   const pathname = usePathname();
 
+  // Get current chat session name for header
+  const getCurrentSessionName = () => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('chatSessions');
+        if (stored) {
+          const sessions = JSON.parse(stored);
+          const currentSessionId = localStorage.getItem('currentSessionId') || sessions[0]?.id;
+          const currentSession = sessions.find((s: any) => s.id === currentSessionId);
+          return currentSession?.name || '';
+        }
+      } catch (error) {
+        console.error('Error reading session data:', error);
+      }
+    }
+    return '';
+  };
+
+  const currentSessionName = getCurrentSessionName();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -64,7 +84,9 @@ export default function RootLayout({
             <div className="max-w-4xl mx-auto flex justify-between items-center">
               <div className="flex items-center">
                 <BackButton />
-                <h1 className="text-xl text-white text-yellow-500 font-bold" style={{ fontFamily: 'Dancing Script, cursive' }}>RedQueen.AI</h1>
+                <h1 className="text-xl text-white text-yellow-500 font-bold" style={{ fontFamily: 'Dancing Script, cursive' }}>
+                  RedQueen.AI
+                </h1>
               </div>
               <div className="flex items-center">
                 <Link href="/disclaimer">

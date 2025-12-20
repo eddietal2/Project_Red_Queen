@@ -90,16 +90,27 @@ export default function Chat() {
     }
   }, [isTyping, typingMessage, currentSession]);
 
+  // Scroll to bottom when current session changes
+  useEffect(() => {
+    if (currentSessionId) {
+      scrollToBottom();
+    }
+  }, [currentSessionId]);
+
   const loadSessions = () => {
     const stored = localStorage.getItem('chatSessions');
     if (stored) {
       try {
         const parsed: ChatSession[] = JSON.parse(stored);
         setSessions(parsed);
-        if (parsed.length > 0) {
-          setCurrentSessionId(parsed[0].id);
-        } else {
-          setCurrentSessionId('');
+        // Try to get current session ID from localStorage, fallback to first session
+        const storedCurrentId = localStorage.getItem('currentSessionId');
+        const currentId = (storedCurrentId && parsed.find(s => s.id === storedCurrentId)) 
+          ? storedCurrentId 
+          : (parsed.length > 0 ? parsed[0].id : '');
+        setCurrentSessionId(currentId);
+        if (currentId) {
+          localStorage.setItem('currentSessionId', currentId);
         }
       } catch (error) {
         console.error('Error loading sessions:', error);
@@ -127,10 +138,23 @@ export default function Chat() {
     const newSessions = [...sessions, newSession];
     saveSessions(newSessions);
     setCurrentSessionId(newSession.id);
+    localStorage.setItem('currentSessionId', newSession.id);
+  };
+
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTo({
+          top: messagesContainerRef.current.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }, 100);
   };
 
   const switchSession = (sessionId: string) => {
     setCurrentSessionId(sessionId);
+    localStorage.setItem('currentSessionId', sessionId);
   };
 
   const renameSession = (sessionId: string) => {
@@ -360,13 +384,13 @@ export default function Chat() {
                 sessions.map((session) => (
                   <div key={session.id} className="relative">
                     <div
-                      className={`p-2 backdrop-blur-lg bg-white/70 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex justify-between items-center ${
+                      className={`p-2 backdrop-blur-lg bg-white/80 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex justify-between items-center ${
                         session.id === currentSessionId ? 'border-2 border-red-500' : ''
                       }`}
                       onClick={() => switchSession(session.id)}
                     >
                       <div>
-                        <p className="text-sm truncate">{session.name}</p>
+                        <p className="text-xs font-bold">{session.name}</p>
                         <p className="text-xs text-gray-500">{new Date(session.createdAt).toLocaleDateString()}</p>
                       </div>
                       <button
