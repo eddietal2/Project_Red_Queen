@@ -286,6 +286,19 @@ export default function Chat() {
       });
       const data = await response.json();
       const fullAnswer = data.answer || 'Sorry, I couldn\'t generate a response.';
+      
+      // Check if quota was exceeded
+      if (data.quota_exceeded) {
+        // Don't show typing animation for quota messages
+        const assistantMessage: Message = { role: 'assistant', content: fullAnswer };
+        const finalMessages2 = [...finalMessages.slice(0, -1), assistantMessage];
+        const finalSession2 = { ...finalSession, messages: finalMessages2 };
+        const finalSessions2 = sessions.map(s => s.id === currentSessionId ? finalSession2 : s);
+        saveSessions(finalSessions2);
+        setIsTalking(false);
+        return;
+      }
+      
       setTypingMessage('');
       setIsTyping(true);
       const assistantMessage: Message = { role: 'assistant', content: fullAnswer };
@@ -336,6 +349,19 @@ export default function Chat() {
       });
       const data = await response.json();
       const fullAnswer = data.answer || 'Sorry, I couldn\'t generate a response.';
+      
+      // Check if quota was exceeded
+      if (data.quota_exceeded) {
+        // Don't show typing animation for quota messages
+        const assistantMessage: Message = { role: 'assistant', content: fullAnswer };
+        const finalMessages = [...updatedMessages.slice(0, -1), assistantMessage]; // Replace loading
+        const finalSession = { ...updatedSession, messages: finalMessages };
+        const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
+        saveSessions(finalSessions);
+        setIsTalking(false);
+        return;
+      }
+      
       setTypingMessage('');
       setIsTyping(true);
       const assistantMessage: Message = { role: 'assistant', content: fullAnswer };
