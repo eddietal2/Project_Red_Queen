@@ -419,8 +419,8 @@ export default function Chat() {
                   const isLastAIMessage = message.role === 'assistant' && index === currentSession.messages.findLastIndex(m => m.role === 'assistant');
                   const isLatestUserMessage = message.role === 'user' && index === currentSession.messages.findLastIndex(m => m.role === 'user');
                   return (
-                  <div key={index} ref={isLatestUserMessage ? latestUserMessageRef : undefined} className={`p-3 text-black backdrop-blur-lg bg-white/70 rounded-md relative z-10 ${
-                    message.role === 'assistant' ? `border-l-4 border-red-500 ${isLastAIMessage ? 'mb-70' : ''}` : 'border-r-4 border-blue-500 text-right'
+                  <div key={index} ref={isLatestUserMessage ? latestUserMessageRef : undefined} className={`p-3 text-black backdrop-blur-lg bg-white/70 rounded-md relative z-10 transition-all duration-200 ${
+                    message.role === 'assistant' ? `border-l-4 border-red-500 hover:bg-white/90 hover:border-red-600 hover:shadow-md ${isLastAIMessage ? 'mb-80' : ''}` : 'border-r-4 border-blue-500 text-right hover:bg-white/90 hover:border-blue-600 hover:shadow-md'
                   }`}>
                     {message.isLoading ? (
                       <div className="flex items-center space-x-2">
