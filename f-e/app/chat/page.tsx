@@ -36,12 +36,16 @@ export default function Chat() {
   const [inputValue, setInputValue] = useState('');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const latestUserMessageRef = useRef<HTMLDivElement>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   const [renameValue, setRenameValue] = useState('');
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
   const [sessionToRename, setSessionToRename] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [typingMessage, setTypingMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
 
   const currentSession = sessions.find(s => s.id === currentSessionId);
 
@@ -64,6 +68,20 @@ export default function Chat() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    if (isTyping && currentSession) {
+      const fullMessage = currentSession.messages[currentSession.messages.length - 1]?.content || '';
+      if (typingMessage.length < fullMessage.length) {
+        const timer = setTimeout(() => {
+          setTypingMessage(fullMessage.slice(0, typingMessage.length + 1));
+        }, 10); // Adjust speed here
+        return () => clearTimeout(timer);
+      } else {
+        setIsTyping(false);
+      }
+    }
+  }, [isTyping, typingMessage, currentSession]);
 
   const loadSessions = () => {
     const stored = localStorage.getItem('chatSessions');
@@ -162,6 +180,16 @@ export default function Chat() {
 
     setInputValue('');
     setIsTalking(true);
+    setTimeout(() => {
+      const messageElement = latestUserMessageRef.current;
+      if (messageElement && messagesContainerRef.current) {
+        const container = messagesContainerRef.current;
+        const messageRect = messageElement.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const scrollTop = container.scrollTop + (messageRect.top - containerRect.top);
+        container.scrollTo({ top: scrollTop, behavior: 'smooth' });
+      }
+    }, 100);
 
     try {
       const response = await fetch('http://localhost:8000/ai/chat/', {
@@ -170,7 +198,10 @@ export default function Chat() {
         body: JSON.stringify({ question: inputValue }),
       });
       const data = await response.json();
-      const assistantMessage: Message = { role: 'assistant', content: data.answer || 'Sorry, I couldn\'t generate a response.' };
+      const fullAnswer = data.answer || 'Sorry, I couldn\'t generate a response.';
+      setTypingMessage('');
+      setIsTyping(true);
+      const assistantMessage: Message = { role: 'assistant', content: fullAnswer };
       const finalMessages = [...updatedMessages.slice(0, -1), assistantMessage]; // Replace loading
       const finalSession = { ...updatedSession, messages: finalMessages };
       const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
@@ -287,13 +318,17 @@ export default function Chat() {
 
         {/* Main Chat Area */}
         <main className="flex-1 flex flex-col">
+
           {/* Chat Messages */}
-          <div className="flex-1 p-4 overflow-y-auto">
-            <div className="max-w-4xl mx-auto space-y-4">
+          <div ref={messagesContainerRef} className="flex-1 p-4 overflow-y-auto">
+            <div className="max-w-2xl mx-auto space-y-4">
               {currentSession ? (
-                currentSession.messages.map((message, index) => (
-                  <div key={index} className={`p-3 text-black backdrop-blur-lg bg-white/70 rounded-md ${
-                    message.role === 'assistant' ? 'border-l-4 border-red-500' : 'border-r-4 border-blue-500 text-right'
+                currentSession.messages.map((message, index) => {
+                  const isLastAIMessage = message.role === 'assistant' && index === currentSession.messages.findLastIndex(m => m.role === 'assistant');
+                  const isLatestUserMessage = message.role === 'user' && index === currentSession.messages.findLastIndex(m => m.role === 'user');
+                  return (
+                  <div key={index} ref={isLatestUserMessage ? latestUserMessageRef : undefined} className={`p-3 text-black backdrop-blur-lg bg-white/70 rounded-md ${
+                    message.role === 'assistant' ? `border-l-4 border-red-500 ${isLastAIMessage ? 'mb-60' : ''}` : 'border-r-4 border-blue-500 text-right'
                   }`}>
                     {message.isLoading ? (
                       <div className="flex items-center space-x-2">
@@ -301,10 +336,16 @@ export default function Chat() {
                         <p className="text-lg">Thinking...</p>
                       </div>
                     ) : (
-                      <p className="text-lg">{message.content}</p>
+                      <p className="text-lg">
+                        {message.role === 'assistant' && index === currentSession.messages.length - 1 && isTyping
+                          ? typingMessage + (typingMessage.length < message.content.length ? '|' : '')
+                          : message.content
+                        }
+                      </p>
                     )}
                   </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="text-center py-12 lg:mt-20 bg-white/10 backdrop-blur-lg rounded-md">
                   <h2 className="text-2xl font-bold bg-gradient-to-r from-red-500 via-yellow-500 to-black bg-clip-text text-transparent mt-4">Welcome to Red Queen AI</h2>
