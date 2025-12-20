@@ -4,6 +4,8 @@ Initializes Llama Index's Google AI integration.
 
 import os
 import sys
+import json
+from datetime import datetime
 from dotenv import load_dotenv
 import custom_console
 from llama_index.llms.google_genai import GoogleGenAI
@@ -46,6 +48,37 @@ except Exception as e:
     print(handle_google_ai_error(e))
     sys.exit(1)
 
+def log_api_usage():
+    """Log daily API usage count"""
+    usage_file = os.path.join(os.path.dirname(__file__), 'api_usage.json')
+    today = datetime.now().strftime('%Y-%m-%d')
+    
+    # Read current usage
+    if os.path.exists(usage_file):
+        try:
+            with open(usage_file, 'r') as f:
+                usage = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            usage = {}
+    else:
+        usage = {}
+    
+    # Reset if new day
+    if usage.get('date') != today:
+        usage = {'date': today, 'count': 0}
+    
+    # Increment count
+    usage['count'] += 1
+    
+    # Write back
+    try:
+        with open(usage_file, 'w') as f:
+            json.dump(usage, f, indent=2)
+    except IOError:
+        pass  # Silently fail if can't write
+    
+    # Log to console
+    print(f"{custom_console.COLOR_CYAN}📊 Gemini API usage: {usage['count']} requests today ({today}){custom_console.RESET_COLOR}")
 
 def main():
     print(f"{custom_console.COLOR_YELLOW}Connecting to Google AI via Google LLM Init Module{custom_console.RESET_COLOR}")

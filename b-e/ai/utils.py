@@ -30,7 +30,7 @@ if not settings.GOOGLE_API_KEY:
 modelTypes = [
     "gemini-3-flash-preview", 
     "gemini-2.5-flash", 
-    "gemini-1.5-flash"
+    "gemini-2.0-flash-lite"
 ]
 chosenModelType = modelTypes[1]  # Default = modelTypes[0]
 

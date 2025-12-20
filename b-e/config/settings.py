@@ -26,8 +26,8 @@ SYSTEM_PROMPT_PATH = BASE_DIR / 'system_prompt.txt'
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
     # NextJS Development IP
     'http://192.168.1.68:3000',
 ]

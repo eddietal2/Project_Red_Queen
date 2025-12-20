@@ -1,6 +1,6 @@
 import os
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings
-from google_llm_init import llm
+from google_llm_init import llm, log_api_usage
 import custom_console
 from datetime import datetime
 
@@ -71,6 +71,7 @@ def chat_with_gemini():
 
             # Generate response from Gemini
             print(f"{custom_console.COLOR_BLUE}Red Queen: {custom_console.RESET_COLOR}", end="", flush=True)
+            log_api_usage()
             response = llm.complete(user_input)
             print(response)
 
