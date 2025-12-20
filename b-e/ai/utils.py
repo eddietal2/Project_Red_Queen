@@ -32,7 +32,7 @@ modelTypes = [
     "gemini-2.5-flash", 
     "gemini-1.5-flash"
 ]
-chosenModelType = modelTypes[0]  # Default = modelTypes[0]
+chosenModelType = modelTypes[1]  # Default = modelTypes[0]
 
 # Initialize Google API Key & Model with error handling
 try:
