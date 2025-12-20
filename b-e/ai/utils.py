@@ -26,14 +26,22 @@ if not settings.GOOGLE_API_KEY:
     print(f"Please set your GOOGLE_API_KEY environment variable")
     sys.exit(1)
 
+# For Dev & Production, to switch between models more easily
+modelTypes = [
+    "gemini-3-flash-preview", 
+    "gemini-2.5-flash", 
+    "gemini-1.5-flash"
+]
+chosenModelType = modelTypes[0]  # Default = modelTypes[0]
+
 # Initialize Google API Key & Model with error handling
 try:
     llm = GoogleGenAI(
         # https://ai.google.dev/gemini-api/docs/models
-        model="gemini-2.5-flash",
+        model=chosenModelType,
         api_key=settings.GOOGLE_API_KEY,
     )
-    print(f"✅ Google AI initialized successfully (gemini-1.5-flash)")
+    print(f"✅ Google AI initialized successfully ({chosenModelType})")
 except Exception as e:
     print(handle_google_ai_error(e))
     sys.exit(1)
