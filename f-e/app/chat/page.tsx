@@ -505,13 +505,13 @@ export default function Chat() {
                 <Input
                   type="text"
                   placeholder={currentSession ? "Type your message..." : "Create a chat session to start"}
-                  className="flex-1 backdrop-blur-lg bg-white/70 focus:ring-2 focus:ring-red-500"
+                  className="flex-1 backdrop-blur-lg bg-white/70 hover:bg-white/80 focus:ring-2 focus:ring-red-500 transition-all duration-200 hover:shadow-md"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                   disabled={!currentSession}
                 />
-                <Button onClick={handleSend} disabled={isTalking || !currentSession}>Send</Button>
+                <Button onClick={handleSend} disabled={isTalking || !currentSession} className="hover:bg-red-600 hover:shadow-md transition-all duration-200 hover:scale-105">Send</Button>
               </div>
             </div>
           </div>
