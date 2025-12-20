@@ -74,14 +74,16 @@ export default function Chat() {
         if (parsed.length > 0) {
           setCurrentSessionId(parsed[0].id);
         } else {
-          createNewSession();
+          setCurrentSessionId('');
         }
       } catch (error) {
         console.error('Error loading sessions:', error);
-        createNewSession();
+        setSessions([]);
+        setCurrentSessionId('');
       }
     } else {
-      createNewSession();
+      setSessions([]);
+      setCurrentSessionId('');
     }
   };
 
@@ -140,7 +142,7 @@ export default function Chat() {
         if (updatedSessions.length > 0) {
           setCurrentSessionId(updatedSessions[0].id);
         } else {
-          createNewSession();
+          setCurrentSessionId('');
         }
       }
     }
@@ -229,52 +231,56 @@ export default function Chat() {
           <div className="flex-1 p-4">
             <h2 className="text-md font-semibold text-white mb-4">Chat Sessions</h2>
             <div className="space-y-2">
-              {sessions.map((session) => (
-                <div key={session.id} className="relative">
-                  <div
-                    className={`p-2 backdrop-blur-lg bg-white/70 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex justify-between items-center ${
-                      session.id === currentSessionId ? 'border-2 border-red-500' : ''
-                    }`}
-                    onClick={() => switchSession(session.id)}
-                  >
-                    <div>
-                      <p className="text-sm truncate">{session.name}</p>
-                      <p className="text-xs text-gray-500">{new Date(session.createdAt).toLocaleDateString()}</p>
-                    </div>
-                    <button
-                      className="text-gray-500 hover:text-gray-700 p-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenMenuId(openMenuId === session.id ? null : session.id);
-                      }}
+              {sessions.length === 0 ? (
+                <p className="text-gray-400 text-sm">No chat sessions yet. Click "New Chat" to start.</p>
+              ) : (
+                sessions.map((session) => (
+                  <div key={session.id} className="relative">
+                    <div
+                      className={`p-2 backdrop-blur-lg bg-white/70 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex justify-between items-center ${
+                        session.id === currentSessionId ? 'border-2 border-red-500' : ''
+                      }`}
+                      onClick={() => switchSession(session.id)}
                     >
-                      ⋮
-                    </button>
-                  </div>
-                  {openMenuId === session.id && (
-                    <div ref={menuRef} className="absolute right-0 mt-1 w-32 bg-white border border-gray-300 rounded shadow-lg z-30">
+                      <div>
+                        <p className="text-sm truncate">{session.name}</p>
+                        <p className="text-xs text-gray-500">{new Date(session.createdAt).toLocaleDateString()}</p>
+                      </div>
                       <button
-                        className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                        onClick={() => renameSession(session.id)}
+                        className="text-gray-500 hover:text-gray-700 p-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuId(openMenuId === session.id ? null : session.id);
+                        }}
                       >
-                        Rename
-                      </button>
-                      <button
-                        className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-red-600"
-                        onClick={() => deleteSession(session.id)}
-                      >
-                        Delete
-                      </button>
-                      <button
-                        className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                        onClick={() => setOpenMenuId(null)}
-                      >
-                        Close
+                        ⋮
                       </button>
                     </div>
-                  )}
-                </div>
-              ))}
+                    {openMenuId === session.id && (
+                      <div ref={menuRef} className="absolute right-0 mt-1 w-32 bg-white border border-gray-300 rounded shadow-lg z-30">
+                        <button
+                          className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                          onClick={() => renameSession(session.id)}
+                        >
+                          Rename
+                        </button>
+                        <button
+                          className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-red-600"
+                          onClick={() => deleteSession(session.id)}
+                        >
+                          Delete
+                        </button>
+                        <button
+                          className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                          onClick={() => setOpenMenuId(null)}
+                        >
+                          Close
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </aside>
@@ -284,20 +290,28 @@ export default function Chat() {
           {/* Chat Messages */}
           <div className="flex-1 p-4 overflow-y-auto">
             <div className="max-w-4xl mx-auto space-y-4">
-              {currentSession?.messages.map((message, index) => (
-                <div key={index} className={`p-3 text-black backdrop-blur-lg bg-white/70 rounded-md ${
-                  message.role === 'assistant' ? 'border-l-4 border-red-500' : 'border-r-4 border-blue-500 text-right'
-                }`}>
-                  {message.isLoading ? (
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
-                      <p className="text-lg">Thinking...</p>
-                    </div>
-                  ) : (
-                    <p className="text-lg">{message.content}</p>
-                  )}
+              {currentSession ? (
+                currentSession.messages.map((message, index) => (
+                  <div key={index} className={`p-3 text-black backdrop-blur-lg bg-white/70 rounded-md ${
+                    message.role === 'assistant' ? 'border-l-4 border-red-500' : 'border-r-4 border-blue-500 text-right'
+                  }`}>
+                    {message.isLoading ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
+                        <p className="text-lg">Thinking...</p>
+                      </div>
+                    ) : (
+                      <p className="text-lg">{message.content}</p>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-12 lg:mt-20 bg-white/10 backdrop-blur-lg rounded-md">
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-red-500 via-yellow-500 to-black bg-clip-text text-transparent mt-4">Welcome to Red Queen AI</h2>
+                  <p className="text-white mt-2">Create a new chat session to get started with your AI assistant.</p>
+                  <Button className="mt-4 red-button" onClick={createNewSession}>Start New Chat</Button>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
@@ -307,13 +321,14 @@ export default function Chat() {
               <div className="flex space-x-2">
                 <Input
                   type="text"
-                  placeholder="Type your message..."
+                  placeholder={currentSession ? "Type your message..." : "Create a chat session to start"}
                   className="flex-1 backdrop-blur-lg bg-white/70 focus:ring-2 focus:ring-red-500"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                  disabled={!currentSession}
                 />
-                <Button onClick={handleSend} disabled={isTalking}>Send</Button>
+                <Button onClick={handleSend} disabled={isTalking || !currentSession}>Send</Button>
               </div>
             </div>
           </div>
