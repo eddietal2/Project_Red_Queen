@@ -329,7 +329,7 @@ export default function Chat() {
 
       <div className="h-[91vh] flex">
         {/* Sidebar - Chat History */}
-        <aside className={`dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 ${
+        <aside className={`bg-rq-black backdrop-blur-lg border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 ${
           isSidebarOpen ? 'w-64' : 'w-0 overflow-hidden'
         }`}>
           {/* Toggle Button */}
@@ -499,7 +499,7 @@ export default function Chat() {
           </div>
 
           {/* Input Area */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="p-4 bg-rq-black backdrop-blur-lg border-t border-gray-200 dark:border-gray-700">
             <div className="max-w-4xl mx-auto">
               <div className="flex space-x-2">
                 <Input
