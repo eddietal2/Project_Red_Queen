@@ -50,6 +50,7 @@ export default function Chat() {
   const messageMenuRef = useRef<HTMLDivElement>(null);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const currentSession = sessions.find(s => s.id === currentSessionId);
 
@@ -137,8 +138,14 @@ export default function Chat() {
     };
     const newSessions = [...sessions, newSession];
     saveSessions(newSessions);
+    setIsTransitioning(true);
     setCurrentSessionId(newSession.id);
     localStorage.setItem('currentSessionId', newSession.id);
+    
+    // Hide messages for 750ms, then show new session
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 750);
   };
 
   const scrollToBottom = () => {
@@ -149,12 +156,18 @@ export default function Chat() {
           behavior: 'smooth'
         });
       }
-    }, 100);
+    }, 900);
   };
 
   const switchSession = (sessionId: string) => {
+    setIsTransitioning(true);
     setCurrentSessionId(sessionId);
     localStorage.setItem('currentSessionId', sessionId);
+    
+    // Hide messages for 750ms, then scroll to bottom
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 500);
   };
 
   const renameSession = (sessionId: string) => {
@@ -189,9 +202,17 @@ export default function Chat() {
       saveSessions(updatedSessions);
       if (sessionToDelete === currentSessionId) {
         if (updatedSessions.length > 0) {
+          setIsTransitioning(true);
           setCurrentSessionId(updatedSessions[0].id);
+          localStorage.setItem('currentSessionId', updatedSessions[0].id);
+          
+          // Hide messages for 750ms, then show new session
+          setTimeout(() => {
+            setIsTransitioning(false);
+          }, 750);
         } else {
           setCurrentSessionId('');
+          localStorage.removeItem('currentSessionId');
         }
       }
     }
@@ -437,7 +458,7 @@ export default function Chat() {
 
           {/* Chat Messages */}
           <div ref={messagesContainerRef} className="flex-1 p-4 overflow-y-auto">
-            <div className="max-w-2xl mx-auto space-y-4">
+            <div className={`max-w-2xl mx-auto space-y-4 transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
               {currentSession ? (
                 currentSession.messages.map((message, index) => {
                   const isLastAIMessage = message.role === 'assistant' && index === currentSession.messages.findLastIndex(m => m.role === 'assistant');
