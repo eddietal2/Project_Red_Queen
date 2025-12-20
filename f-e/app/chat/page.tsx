@@ -41,6 +41,7 @@ export default function Chat() {
   const [renameValue, setRenameValue] = useState('');
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
   const [sessionToRename, setSessionToRename] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const currentSession = sessions.find(s => s.id === currentSessionId);
 
@@ -186,9 +187,37 @@ export default function Chat() {
 
   return (
     <>
+      {/* Collapsed Avatar */}
+      {!isSidebarOpen && (
+        <div className="fixed top-8 left-4 z-20 flex items-center space-x-2">
+          <RedQueenAvatar isTalking={isTalking} />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsSidebarOpen(true)}
+            className="ml-2"
+          >
+            →
+          </Button>
+        </div>
+      )}
+
       <div className="h-[91vh] flex">
         {/* Sidebar - Chat History */}
-        <aside className="w-64 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+        <aside className={`dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 ${
+          isSidebarOpen ? 'w-64' : 'w-0 overflow-hidden'
+        }`}>
+          {/* Toggle Button */}
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="w-full"
+            >
+              {isSidebarOpen ? '← Collapse' : '→ Expand'}
+            </Button>
+          </div>
           {/* Red Queen AI Visualization Section */}
           <div className="mx-auto">
             <RedQueenAvatar isTalking={isTalking} />
@@ -223,7 +252,7 @@ export default function Chat() {
                     </button>
                   </div>
                   {openMenuId === session.id && (
-                    <div ref={menuRef} className="absolute right-0 mt-1 w-32 bg-white border border-gray-300 rounded shadow-lg z-10">
+                    <div ref={menuRef} className="absolute right-0 mt-1 w-32 bg-white border border-gray-300 rounded shadow-lg z-30">
                       <button
                         className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
                         onClick={() => renameSession(session.id)}
@@ -237,7 +266,7 @@ export default function Chat() {
                         Delete
                       </button>
                       <button
-                        className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 border-t"
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
                         onClick={() => setOpenMenuId(null)}
                       >
                         Close
