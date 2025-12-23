@@ -11,4 +11,5 @@ dependencies = [
     "llama-index",
     "python-dotenv>=1.2.1",
     "chromadb",
+    "beautifulsoup4",
 ]
