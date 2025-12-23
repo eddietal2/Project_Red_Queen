@@ -18,6 +18,7 @@ Usage:
 - python scraper.py check        : Check for changes and prompt
 - python scraper.py upload       : Upload all .txt files
 - python scraper.py reset        : Reset versioning and delete files
+- python scraper.py franchise-urls: Scan franchise pages for URLs
 """
 
 import os
@@ -27,7 +28,15 @@ import json
 import urllib.request
 import difflib
 import chromadb
+import re
 from dotenv import load_dotenv
+
+# Load URLs from JSON
+URLS_FILE = os.path.join(os.path.dirname(__file__), '..', 'urls', 'urls.json')
+with open(URLS_FILE, 'r') as f:
+    data = json.load(f)
+    FRANCHISE_URLS = data['franchise']
+    ALL_URLS = data['all_urls']
 
 # Add path to custom modules
 sys.path.append('../../../')
@@ -57,30 +66,6 @@ COLLECTION = client.get_or_create_collection(name="franchise-data")
 
 # Ensure output directory exists
 os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-# List of Resident Evil Franchise wiki URLs to scrape
-FRANCHISE_URLS = [
-    "https://residentevil.fandom.com/wiki/Resident_Evil_franchise",
-    "https://residentevil.fandom.com/wiki/Resident_Evil_games",
-    "https://residentevil.fandom.com/wiki/Resident_Evil_productions",
-    "https://residentevil.fandom.com/wiki/Resident_Evil_comics",
-    "https://residentevil.fandom.com/wiki/Resident_Evil_novels",
-    "https://residentevil.fandom.com/wiki/Supplement_literature",
-    "https://residentevil.fandom.com/wiki/Template:Guide_books",
-    "https://residentevil.fandom.com/wiki/Template:Attractions",
-    "https://residentevil.fandom.com/wiki/Template:Promotions_navigation",
-    "https://residentevil.fandom.com/wiki/Template:Merchandise",
-    "https://residentevil.fandom.com/wiki/Template:Cancelled_projects",
-    "https://residentevil.fandom.com/wiki/Manuals",
-    "https://residentevil.fandom.com/wiki/Demoware",
-    "https://residentevil.fandom.com/wiki/Soundtracks_and_albums",
-    "https://residentevil.fandom.com/wiki/Template:Adverts_navigation",
-    "https://residentevil.fandom.com/wiki/Anniversaries",
-    "https://residentevil.fandom.com/wiki/Template:Art_books",
-    "https://residentevil.fandom.com/wiki/Template:Competitions",
-    "https://residentevil.fandom.com/wiki/Template:Collaborations",
-    "https://residentevil.fandom.com/wiki/Template:Non-Resident_Evil"
-]
 
 
 def get_franchise_pages():
@@ -113,6 +98,57 @@ def get_franchise_pages():
         except Exception as e:
             print(f"{COLOR_RED}Error fetching {raw_url}: {e}{RESET_COLOR}")
 
+def check_page_urls():
+    """Scan franchise pages for URLs to include in scraping."""
+    print(f"{COLOR_YELLOW}Checking franchise pages for URLs...{RESET_COLOR}")
+    
+    # Use franchise URLs
+    urls_to_check = FRANCHISE_URLS
+    
+    found_urls = set()
+    
+    for url in urls_to_check:
+        raw_url = url + "?action=raw"
+        try:
+            with urllib.request.urlopen(raw_url) as response:
+                content = response.read().decode('utf-8')
+            
+            # Find wiki links [[link]]
+            links = re.findall(r'\[\[([^\]]+)\]\]', content)
+            for link in links:
+                # Remove any | for display text
+                link = link.split('|')[0]
+                # Convert to full URL
+                if not link.startswith('http'):
+                    full_url = f"{WIKI_URL}/wiki/{link.replace(' ', '_')}"
+                    found_urls.add(full_url)
+            
+            print(f"{COLOR_BLUE}Processed {url}{RESET_COLOR}")
+            
+        except Exception as e:
+            print(f"{COLOR_RED}Error fetching {raw_url}: {e}{RESET_COLOR}")
+    
+    # Add new URLs to ALL_URLS
+    original_count = len(ALL_URLS)
+    ALL_URLS.extend(url for url in found_urls if url not in ALL_URLS)
+    new_count = len(ALL_URLS)
+    
+    if new_count > original_count:
+        # Save updated URLs to JSON
+        data['all_urls'] = sorted(ALL_URLS)
+        with open(URLS_FILE, 'w') as f:
+            json.dump(data, f, indent=4)
+        print(f"{COLOR_GREEN}Added {new_count - original_count} new URLs to the database.{RESET_COLOR}")
+    else:
+        print(f"{COLOR_BLUE}No new URLs found.{RESET_COLOR}")
+    
+    # Print found URLs
+    if found_urls:
+        print(f"{COLOR_GREEN}Found additional URLs:{RESET_COLOR}")
+        for url in sorted(found_urls):
+            print(url)
+    else:
+        print(f"{COLOR_YELLOW}No additional URLs found.{RESET_COLOR}")
 
 def check_and_prompt_franchise_uploads():
     """
@@ -308,9 +344,11 @@ def main():
         elif command == 'upload':
             all_files = [f for f in os.listdir(OUTPUT_DIR) if f.endswith('.txt')]
             upload_franchise_pages_to_chroma(all_files)
+        elif command == 'franchise-urls':
+            check_page_urls()
         else:
             print(f"{COLOR_RED}Unknown command: {command}{RESET_COLOR}")
-            print("Available commands: reset, fetch, check, upload")
+            print("Available commands: reset, fetch, check, upload, franchise-urls")
     else:
         # Default behavior: check and upload
         files_to_upload, skipped_files = check_and_prompt_franchise_uploads()
