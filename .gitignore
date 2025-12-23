@@ -135,4 +135,4 @@ pnpm-error.log*
 
 # Scraped data directories
 b-e/chroma/red_queen_knowledge/*/data
-b-e/chroma/red_queen_knowledge/urls/
+b-e/chroma/red_queen_knowledge/urls
