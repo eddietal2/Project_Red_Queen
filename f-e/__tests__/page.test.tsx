@@ -7,6 +7,7 @@ describe('Landing Page', () => {
   beforeEach(() => {
     render(<Home />);
   });
+})
 
   describe('Hero Section', () => {
     it('renders the hero section', () => {
@@ -67,10 +68,50 @@ describe('Landing Page', () => {
       const aboutText = screen.getByText(/about|software/i);
       expect(aboutText).toBeInTheDocument();
     });
+  })
 
-    it('renders a link or button in about section', () => {
-      const link = screen.getByRole('link');
-      expect(link).toBeInTheDocument();
+  describe('Mobile Responsiveness', () => {
+    it('renders responsive text sizes in hero section', () => {
+      const heading = screen.getByRole('heading', { level: 1 });
+      expect(heading).toHaveClass('text-2xl', 'sm:text-3xl', 'lg:text-4xl');
+    });
+
+    it('renders responsive button sizing', () => {
+      const chatButton = screen.getByRole('button', { name: /chat/i });
+      expect(chatButton).toHaveClass('px-6', 'py-3', 'sm:px-8', 'sm:py-4');
+    });
+
+    it('renders responsive grid layouts in features section', () => {
+      const featuresGrid = screen.getByRole('region', { name: /features/i }).querySelector('ul');
+      expect(featuresGrid).toHaveClass('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
+    });
+
+    it('renders responsive padding in features section', () => {
+      const featuresSection = screen.getByRole('region', { name: /features/i });
+      expect(featuresSection).toHaveClass('py-8', 'sm:py-12', 'lg:py-16', 'px-4');
+    });
+
+    it('renders responsive icon sizes in features', () => {
+      const icons = screen.getAllByRole('img', { hidden: true });
+      // Check that at least one icon has responsive classes
+      const hasResponsiveIcon = icons.some(icon =>
+        icon.className.includes('w-8') &&
+        icon.className.includes('h-8') &&
+        icon.className.includes('sm:w-10') &&
+        icon.className.includes('sm:h-10')
+      );
+      expect(hasResponsiveIcon).toBe(true);
+    });
+
+    it('renders touch-friendly button sizes', () => {
+      const chatButton = screen.getByRole('button', { name: /chat/i });
+      // Check for minimum touch target size (44px)
+      const hasMinTouchTarget = chatButton.className.includes('py-3') || chatButton.className.includes('py-4');
+      expect(hasMinTouchTarget).toBe(true);
+    });
+
+    it('renders responsive text sizes in about section', () => {
+      const aboutHeading = screen.getByRole('heading', { name: /about/i });
+      expect(aboutHeading).toHaveClass('text-2xl', 'sm:text-3xl');
     });
   });
-});

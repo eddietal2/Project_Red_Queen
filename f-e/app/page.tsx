@@ -7,16 +7,16 @@ export default function Home() {
     <div className="min-h-screen bg-rq-black">
 
       {/* Hero Section */}
-      <header role="banner" className="flex items-center text-white min-h-[80vh] px-4">
-        <div className="max-w-4xl mx-auto p-12 shad text-center rounded-lg bg-black/80 backdrop-blur-lg hover:bg-red-900/10 hover:scale-105 transition-all duration-300 hover:shadow-xl">
-          <h1 className="text-4xl text-white text-yellow-500 font-bold mb-4 typewriter"  style={{ fontFamily: 'Dancing Script, cursive' }}>
+      <header role="banner" className="flex items-center text-white min-h-[60vh] sm:min-h-[80vh] px-4">
+        <div className="max-w-4xl mx-auto p-4 sm:p-8 lg:p-12 shad text-center rounded-lg bg-black/80 backdrop-blur-lg hover:bg-red-900/10 hover:scale-105 transition-all duration-300 hover:shadow-xl">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl text-white text-yellow-500 font-bold mb-4 typewriter"  style={{ fontFamily: 'Dancing Script, cursive' }}>
             Welcome to RedQueen.AI.
             </h1>
-          <p className="text-lg mb-6 text-white">
+          <p className="text-base sm:text-lg mb-6 text-white">
             AI Agent for discovering Resident Evil Lore.
           </p>
           <Link href="/chat">
-            <Button className="red-button text-white hover:bg-rq-dark-red hover:scale-105 hover:shadow-lg transition-all duration-300">
+            <Button className="red-button text-white hover:bg-rq-dark-red hover:scale-105 hover:shadow-lg transition-all duration-300 px-6 py-3 sm:px-8 sm:py-4">
               Start Chat
             </Button>
           </Link>
@@ -24,18 +24,18 @@ export default function Home() {
       </header>
 
       {/* Features Section */}
-      <div className="backdrop-blur-lg bg-rq-red/10 p-8 lg:m-32 shadow-lg rounded-lg">
+      <div className="backdrop-blur-lg bg-rq-red/10 p-4 sm:p-6 lg:p-8 m-4 sm:m-8 lg:m-32 shadow-lg rounded-lg">
         <section
           role="region"
           aria-label="Features"
-          className="py-16 px-4 text-white"
+          className="py-8 sm:py-12 lg:py-16 px-4 text-white"
         >
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl text-yellow-500 font-bold text-center mb-12" style={{ fontFamily: 'Dancing Script, cursive' }}>
+            <h2 className="text-2xl sm:text-3xl text-yellow-500 font-bold text-center mb-8 sm:mb-12" style={{ fontFamily: 'Dancing Script, cursive' }}>
               Features
             </h2>
-            <ul className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <li className="bg-black/80 p-6 rounded-lg border border-rq-red/30 bg-rq-red/80 backdrop-blur-lg hover:bg-red-900/10 hover:scale-105 transition-all duration-300 hover:shadow-xl text-center">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+              <li className="bg-black/80 p-4 sm:p-6 rounded-lg border border-rq-red/30 bg-rq-red/80 backdrop-blur-lg hover:bg-red-900/10 hover:scale-105 transition-all duration-300 hover:shadow-xl text-center">
                 <div className="mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -43,7 +43,7 @@ export default function Home() {
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
-                    className="w-12 h-12 mx-auto text-rq-red"
+                    className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 mx-auto text-rq-red"
                   >
                     <path
                       strokeLinecap="round"
@@ -52,10 +52,10 @@ export default function Home() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl text-yellow-500 font-semibold mb-2">Red Queen AI Emulation</h3>
-                <p>An AI system that embodies the Red Queen from Resident Evil, providing intelligent, character-consistent interactions and responses.</p>
+                <h3 className="text-lg sm:text-xl text-yellow-500 font-semibold mb-2">Red Queen AI Emulation</h3>
+                <p className="text-sm sm:text-base">An AI system that embodies the Red Queen from Resident Evil, providing intelligent, character-consistent interactions and responses.</p>
               </li>
-              <li className="bg-black/80 p-6 rounded-lg border border-rq-red/30 bg-rq-red/80 backdrop-blur-lg hover:bg-red-900/10 hover:scale-105 transition-all duration-300 hover:shadow-xl text-center">
+              <li className="bg-black/80 p-4 sm:p-6 rounded-lg border border-rq-red/30 bg-rq-red/80 backdrop-blur-lg hover:bg-red-900/10 hover:scale-105 transition-all duration-300 hover:shadow-xl text-center">
                 <div className="mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -63,7 +63,7 @@ export default function Home() {
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
-                    className="w-12 h-12 mx-auto text-rq-red"
+                    className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 mx-auto text-rq-red"
                   >
                     <path
                       strokeLinecap="round"
@@ -72,10 +72,10 @@ export default function Home() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl text-yellow-500 font-semibold mb-2">Resident Evil Lore Discovery</h3>
-                <p>Leverage the Red Queen AI to delve into and discover comprehensive Resident Evil lore, offering detailed insights and answers to your questions.</p>
+                <h3 className="text-lg sm:text-xl text-yellow-500 font-semibold mb-2">Resident Evil Lore Discovery</h3>
+                <p className="text-sm sm:text-base">Leverage the Red Queen AI to delve into and discover comprehensive Resident Evil lore, offering detailed insights and answers to your questions.</p>
               </li>
-              <li className="bg-black/80 p-6 rounded-lg border border-rq-red/30 bg-rq-red/80 backdrop-blur-lg hover:bg-red-900/10 hover:scale-105 transition-all duration-300 hover:shadow-xl text-center">
+              <li className="bg-black/80 p-4 sm:p-6 rounded-lg border border-rq-red/30 bg-rq-red/80 backdrop-blur-lg hover:bg-red-900/10 hover:scale-105 transition-all duration-300 hover:shadow-xl text-center">
                 <div className="mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -83,7 +83,7 @@ export default function Home() {
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
-                    className="w-12 h-12 mx-auto text-rq-red"
+                    className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 mx-auto text-rq-red"
                   >
                     <path
                       strokeLinecap="round"
@@ -92,8 +92,8 @@ export default function Home() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl text-yellow-500 font-semibold mb-2">RAG-Powered AI Agent</h3>
-                <p>Built on Retrieval-Augmented Generation (RAG) and AI agent technology, integrated with vector databases for seamless knowledge retrieval and generation.</p>
+                <h3 className="text-lg sm:text-xl text-yellow-500 font-semibold mb-2">RAG-Powered AI Agent</h3>
+                <p className="text-sm sm:text-base">Built on Retrieval-Augmented Generation (RAG) and AI agent technology, integrated with vector databases for seamless knowledge retrieval and generation.</p>
               </li>
             </ul>
           </div>
@@ -104,61 +104,61 @@ export default function Home() {
       <section
         role="region"
         aria-label="About"
-        className="py-16 px-4 bg-rq-blue text-white"
+        className="py-8 sm:py-12 lg:py-16 px-4 bg-rq-blue text-white"
       >
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl text-yellow-500 font-bold mb-8" style={{ fontFamily: 'Dancing Script, cursive' }}>About This Software</h2>
-          <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <h2 className="text-2xl sm:text-3xl text-yellow-500 font-bold mb-6 sm:mb-8" style={{ fontFamily: 'Dancing Script, cursive' }}>About This Software</h2>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
             <div className="backdrop-blur-lg bg-black/60 rounded-xl hover:shadow-xl hover:bg-red-900/10 hover:border-rq-red/50 hover:scale-105 transition-all duration-300">
-              <li className="bg-rq-black/60 p-6 rounded-xl border border-[#999] shadow-lg min-h-64 flex flex-col justify-center">
-                <div className="mb-4 flex">
-                  <img src="/icons/nextjs-icon.svg" alt="NextJS" className="tech-icon w-12 h-12 mx-auto" />
-                  <img src="/icons/react-icon.svg" alt="React" className="tech-icon w-12 h-12 mx-auto" />
+              <li className="bg-rq-black/60 p-4 sm:p-6 rounded-xl border border-[#999] shadow-lg min-h-48 sm:min-h-56 lg:min-h-64 flex flex-col justify-center">
+                <div className="mb-4 flex justify-center gap-2">
+                  <img src="/icons/nextjs-icon.svg" alt="NextJS" className="tech-icon w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
+                  <img src="/icons/react-icon.svg" alt="React" className="tech-icon w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
                 </div>
-                <strong className="text-yellow-500">NextJS</strong> - React framework for server-side rendering and full-stack development.
+                <strong className="text-yellow-500 text-sm sm:text-base">NextJS</strong> - React framework for server-side rendering and full-stack development.
               </li>
             </div>
             <div className="backdrop-blur-lg bg-black/60 rounded-xl hover:shadow-xl hover:bg-red-900/10 hover:border-rq-red/50 hover:scale-105 transition-all duration-300">
-              <li className="bg-rq-black/60 p-6 rounded-xl border border-[#999] shadow-lg min-h-64 flex flex-col justify-center">
-                <div className="mb-4 flex">
-                  <img src="/icons/python-icon.svg" alt="Python" className="tech-icon w-12 h-12 mx-auto" />
-                  <img src="/icons/django-icon.svg" alt="Django" className="tech-icon w-12 h-12 mx-auto" />
+              <li className="bg-rq-black/60 p-4 sm:p-6 rounded-xl border border-[#999] shadow-lg min-h-48 sm:min-h-56 lg:min-h-64 flex flex-col justify-center">
+                <div className="mb-4 flex justify-center gap-2">
+                  <img src="/icons/python-icon.svg" alt="Python" className="tech-icon w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
+                  <img src="/icons/django-icon.svg" alt="Django" className="tech-icon w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
                 </div>
-                <strong className="text-yellow-500">Django</strong> - Python web framework for rapid backend development.
+                <strong className="text-yellow-500 text-sm sm:text-base">Django</strong> - Python web framework for rapid backend development.
               </li>
             </div>
             <div className="backdrop-blur-lg bg-black/60 rounded-xl hover:shadow-xl hover:bg-red-900/10 hover:border-rq-red/50 hover:scale-105 transition-all duration-300">
-              <li className="bg-rq-black/60 p-6 rounded-xl border border-[#999] shadow-lg min-h-64 flex flex-col justify-center">
-                <div className="mb-4 flex">
-                  <img src="/icons/google-icon.svg" alt="Google" className="tech-icon w-12 h-12 mx-auto" />
-                  <img src="/icons/google-gemini-icon.svg" alt="Gemini" className="tech-icon w-12 h-12 mx-auto" />
+              <li className="bg-rq-black/60 p-4 sm:p-6 rounded-xl border border-[#999] shadow-lg min-h-48 sm:min-h-56 lg:min-h-64 flex flex-col justify-center">
+                <div className="mb-4 flex justify-center gap-2">
+                  <img src="/icons/google-icon.svg" alt="Google" className="tech-icon w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
+                  <img src="/icons/google-gemini-icon.svg" alt="Gemini" className="tech-icon w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
                 </div>
-                <strong className="text-yellow-500">Gemini 2.5 Flash</strong> - Advanced AI model for fast and accurate language processing.
+                <strong className="text-yellow-500 text-sm sm:text-base">Gemini 2.5 Flash</strong> - Advanced AI model for fast and accurate language processing.
               </li>
             </div>
             <div className="backdrop-blur-lg bg-black/60 rounded-xl hover:shadow-xl hover:bg-red-900/10 hover:border-rq-red/50 hover:scale-105 transition-all duration-300">
-              <li className="bg-rq-black/60 p-6 rounded-xl border border-[#999] shadow-lg min-h-64 flex flex-col justify-center">
-                <div className="mb-4 flex">
-                  <img src="/icons/llamaindex-icon.svg" alt="Llama Index" className="tech-icon scale-300 w-12 h-12 mx-auto" />
+              <li className="bg-rq-black/60 p-4 sm:p-6 rounded-xl border border-[#999] shadow-lg min-h-48 sm:min-h-56 lg:min-h-64 flex flex-col justify-center">
+                <div className="mb-4 flex justify-center">
+                  <img src="/icons/llamaindex-icon.svg" alt="Llama Index" className="tech-icon scale-300 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
                 </div>
-                <strong className="text-yellow-500">Llama Index (for RAG)</strong> - Framework for building retrieval-augmented generation applications.
+                <strong className="text-yellow-500 text-sm sm:text-base">Llama Index (for RAG)</strong> - Framework for building retrieval-augmented generation applications.
               </li>
             </div>
             <div className="backdrop-blur-lg bg-black/60 rounded-xl hover:shadow-xl hover:bg-red-900/10 hover:border-rq-red/50 hover:scale-105 transition-all duration-300">
-              <li className="bg-rq-black/60 p-6 rounded-xl border border-[#999] shadow-lg min-h-64 flex flex-col justify-center">
-                <div className="mb-4 flex">
-                  <img src="/icons/tailwindcss-icon.svg" alt="TailwindCSS" className="tech-icon w-12 h-12 mx-auto" />
-                  <img src="/icons/shadcn-icon.svg" alt="Shadcn" className="tech-icon w-12 h-12 mx-auto" />
+              <li className="bg-rq-black/60 p-4 sm:p-6 rounded-xl border border-[#999] shadow-lg min-h-48 sm:min-h-56 lg:min-h-64 flex flex-col justify-center">
+                <div className="mb-4 flex justify-center gap-2">
+                  <img src="/icons/tailwindcss-icon.svg" alt="TailwindCSS" className="tech-icon w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
+                  <img src="/icons/shadcn-icon.svg" alt="Shadcn" className="tech-icon w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
                 </div>
-                <strong className="text-yellow-500">TailwindCSS & Shadcn</strong> - Utility-first CSS framework and component library for modern UI.
+                <strong className="text-yellow-500 text-sm sm:text-base">TailwindCSS & Shadcn</strong> - Utility-first CSS framework and component library for modern UI.
               </li>
             </div>
             <div className="backdrop-blur-lg bg-black/60 rounded-xl hover:shadow-xl hover:bg-red-900/10 hover:border-rq-red/50 hover:scale-105 transition-all duration-300">
-              <li className="bg-rq-black/60 p-6 rounded-xl border border-[#999] shadow-lg min-h-64 flex flex-col justify-center">
-                <div className="mb-4 flex">
-                  <img src="/icons/chroma-icon.svg" alt="ChromaDB" className="tech-icon w-12 h-12 mx-auto" />
+              <li className="bg-rq-black/60 p-4 sm:p-6 rounded-xl border border-[#999] shadow-lg min-h-48 sm:min-h-56 lg:min-h-64 flex flex-col justify-center">
+                <div className="mb-4 flex justify-center">
+                  <img src="/icons/chroma-icon.svg" alt="ChromaDB" className="tech-icon w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
                 </div>
-                <strong className="text-yellow-500">ChromaDB</strong> - Vector database for efficient AI and embedding storage.
+                <strong className="text-yellow-500 text-sm sm:text-base">ChromaDB</strong> - Vector database for efficient AI and embedding storage.
               </li>
             </div>
           </ul>
