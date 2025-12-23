@@ -20,6 +20,29 @@ Usage:
 - python scraper.py reset        : Reset versioning and delete files
 - python scraper.py franchise-urls: Scan franchise pages for URLs
 """
+# Main Content URLs:
+# "franchise": [
+#         "https://residentevil.fandom.com/wiki/Resident_Evil_franchise",
+#         "https://residentevil.fandom.com/wiki/Resident_Evil_games",
+#         "https://residentevil.fandom.com/wiki/Resident_Evil_productions",
+#         "https://residentevil.fandom.com/wiki/Resident_Evil_comics",
+#         "https://residentevil.fandom.com/wiki/Resident_Evil_novels",
+#         "https://residentevil.fandom.com/wiki/Supplement_literature",
+#         "https://residentevil.fandom.com/wiki/Manuals",
+#         "https://residentevil.fandom.com/wiki/Demoware",
+#         "https://residentevil.fandom.com/wiki/Soundtracks_and_albums",
+#         "https://residentevil.fandom.com/wiki/Anniversaries",
+#         "https://residentevil.fandom.com/wiki/Template:Adverts_navigation",
+#         "https://residentevil.fandom.com/wiki/Template:Guide_books",
+#         "https://residentevil.fandom.com/wiki/Template:Attractions",
+#         "https://residentevil.fandom.com/wiki/Template:Promotions_navigation",
+#         "https://residentevil.fandom.com/wiki/Template:Merchandise",
+#         "https://residentevil.fandom.com/wiki/Template:Cancelled_projects",
+#         "https://residentevil.fandom.com/wiki/Template:Art_books",
+#         "https://residentevil.fandom.com/wiki/Template:Competitions",
+#         "https://residentevil.fandom.com/wiki/Template:Collaborations",
+#         "https://residentevil.fandom.com/wiki/Template:Non-Resident_Evil"
+#     ],
 
 import os
 import sys
@@ -66,7 +89,6 @@ COLLECTION = client.get_or_create_collection(name="franchise-data")
 
 # Ensure output directory exists
 os.makedirs(OUTPUT_DIR, exist_ok=True)
-
 
 def get_franchise_pages():
     """
@@ -129,16 +151,24 @@ def check_page_urls():
             print(f"{COLOR_RED}Error fetching {raw_url}: {e}{RESET_COLOR}")
     
     # Add new URLs to ALL_URLS
-    original_count = len(ALL_URLS)
+    original_all_count = len(ALL_URLS)
     ALL_URLS.extend(url for url in found_urls if url not in ALL_URLS)
-    new_count = len(ALL_URLS)
+    new_all_count = len(ALL_URLS)
     
-    if new_count > original_count:
+    # Add new URLs to FRANCHISE_URLS
+    original_franchise_count = len(FRANCHISE_URLS)
+    FRANCHISE_URLS.extend(url for url in found_urls if url not in FRANCHISE_URLS)
+    new_franchise_count = len(FRANCHISE_URLS)
+    
+    if new_all_count > original_all_count or new_franchise_count > original_franchise_count:
         # Save updated URLs to JSON
         data['all_urls'] = sorted(ALL_URLS)
+        data['franchise'] = sorted(FRANCHISE_URLS)
         with open(URLS_FILE, 'w') as f:
             json.dump(data, f, indent=4)
-        print(f"{COLOR_GREEN}Added {new_count - original_count} new URLs to the database.{RESET_COLOR}")
+        added_all = new_all_count - original_all_count
+        added_franchise = new_franchise_count - original_franchise_count
+        print(f"{COLOR_GREEN}Added {added_all} new URLs to all_urls and {added_franchise} to franchise.{RESET_COLOR}")
     else:
         print(f"{COLOR_BLUE}No new URLs found.{RESET_COLOR}")
     
@@ -214,7 +244,6 @@ def check_and_prompt_franchise_uploads():
             print(f"{COLOR_YELLOW}Skipped {filename}{RESET_COLOR}")
     
     return files_to_upload, skipped_files
-
 
 def upload_franchise_pages_to_chroma(files_to_upload):
     """
@@ -295,7 +324,6 @@ def upload_franchise_pages_to_chroma(files_to_upload):
     else:
         print(f"{COLOR_BLUE}No uploads performed.{RESET_COLOR}")
 
-
 def reset_franchise_versioning():
     """
     Reset versioning system by deleting content files and local .txt files.
@@ -319,7 +347,6 @@ def reset_franchise_versioning():
             print(f"{COLOR_YELLOW}Removed {filename}{RESET_COLOR}")
     
     print(f"{COLOR_GREEN}Versioning reset complete.{RESET_COLOR}")
-
 
 def main():
     """
@@ -359,7 +386,6 @@ def main():
         
         if skipped_files:
             print(f"{COLOR_YELLOW}Skipped uploading to ChromaDB for: {', '.join(skipped_files)}{RESET_COLOR}")
-
 
 if __name__ == "__main__":
     main()
