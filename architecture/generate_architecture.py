@@ -431,7 +431,9 @@ def main():
     """Main function to generate architecture diagrams."""
     print("🏰 Generating Project_Red_Queen Architecture Diagrams...")
 
-    analyzer = ProjectAnalyzer()
+    # Since this script is in the architecture/ directory, go up one level for project root
+    project_root = Path(__file__).parent.parent
+    analyzer = ProjectAnalyzer(project_root)
 
     # Analyze both backend and frontend
     analyzer.analyze_backend("b-e")
@@ -442,19 +444,19 @@ def main():
 
     # Generate backend diagram
     backend_diagram = generate_backend_diagram(analyzer)
-    with open("backend_architecture.md", 'w', encoding='utf-8') as f:
+    with open("architecture/backend_architecture.md", 'w', encoding='utf-8') as f:
         f.write(backend_diagram)
     print("✅ Backend architecture diagram generated: backend_architecture.md")
 
     # Generate frontend diagram
     frontend_diagram = generate_frontend_diagram(analyzer)
-    with open("frontend_architecture.md", 'w', encoding='utf-8') as f:
+    with open("architecture/frontend_architecture.md", 'w', encoding='utf-8') as f:
         f.write(frontend_diagram)
     print("✅ Frontend architecture diagram generated: frontend_architecture.md")
 
     # Generate full-stack diagram
     full_stack_diagram = generate_full_stack_diagram(analyzer)
-    with open("fullstack_architecture.md", 'w', encoding='utf-8') as f:
+    with open("architecture/fullstack_architecture.md", 'w', encoding='utf-8') as f:
         f.write(full_stack_diagram)
     print("✅ Full-stack architecture diagram generated: fullstack_architecture.md")
 
@@ -488,7 +490,7 @@ def main():
 - **File Processing**: Voice clip handling and storage
 """
 
-    with open("architecture_summary.md", 'w', encoding='utf-8') as f:
+    with open("architecture/architecture_summary.md", 'w', encoding='utf-8') as f:
         f.write(report)
     print("📋 Architecture summary generated: architecture_summary.md")
 
