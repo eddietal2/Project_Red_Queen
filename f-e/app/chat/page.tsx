@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useEffect, useState, useRef } from "react";
 import RedQueenAvatar from "@/components/RedQueenAvatar";
+import Link from "next/link";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -43,7 +44,7 @@ export default function Chat() {
   const [renameValue, setRenameValue] = useState('');
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
   const [sessionToRename, setSessionToRename] = useState<string | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [typingMessage, setTypingMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [openMessageMenuId, setOpenMessageMenuId] = useState<string | null>(null);
@@ -61,6 +62,23 @@ export default function Chat() {
       document.body.style.overflow = 'auto';
     };
   }, []);
+
+  useEffect(() => {
+    // Listen for mobile menu toggle from layout
+    const handleMobileMenuToggle = (event: CustomEvent) => {
+      setIsSidebarOpen(event.detail);
+    };
+    window.addEventListener('mobileMenuToggle', handleMobileMenuToggle as EventListener);
+    return () => {
+      window.removeEventListener('mobileMenuToggle', handleMobileMenuToggle as EventListener);
+    };
+  }, []);
+
+  useEffect(() => {
+    // Store sidebar state and notify layout
+    localStorage.setItem('sidebarOpen', isSidebarOpen.toString());
+    window.dispatchEvent(new CustomEvent('sidebarStateChange'));
+  }, [isSidebarOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -385,7 +403,7 @@ export default function Chat() {
     <>
       {/* Collapsed Avatar */}
       {!isSidebarOpen && (
-        <div className="fixed top-8 left-4 z-20 flex items-center space-x-2">
+        <div className="fixed top-8 left-4 z-20 flex items-center space-x-2 hidden md:flex">
           <RedQueenAvatar isTalking={isTalking} />
           <Button
             variant="outline"
@@ -398,20 +416,27 @@ export default function Chat() {
         </div>
       )}
 
-      <div className="h-[91vh] flex">
+      <div className="h-screen flex relative">
+        {/* Mobile Overlay Sidebar */}
+        {isSidebarOpen && (
+          <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsSidebarOpen(false)} />
+        )}
+
         {/* Sidebar - Chat History */}
         <aside className={`bg-rq-black backdrop-blur-lg border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 ${
-          isSidebarOpen ? 'w-64' : 'w-0 overflow-hidden'
+          isSidebarOpen
+            ? 'fixed md:relative inset-y-0 left-0 z-50 w-80 md:w-64'
+            : 'w-0 overflow-hidden'
         }`}>
           {/* Toggle Button */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-700">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="w-full"
+              className="w-full px-3 py-2 text-sm md:text-base"
             >
-              {isSidebarOpen ? '← Collapse' : '→ Expand'}
+              {isSidebarOpen ? '← Close' : '☰ Menu'}
             </Button>
           </div>
           {/* Red Queen AI Visualization Section */}
@@ -420,6 +445,11 @@ export default function Chat() {
           </div>
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <Button className="w-full" onClick={createNewSession}>New Chat</Button>
+          </div>
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 md:hidden">
+            <Link href="/disclaimer">
+              <Button className="w-full bg-rq-red text-white hover:bg-rq-dark-red">Disclaimer</Button>
+            </Link>
           </div>
           {/* Chat History */}
           <div className="flex-1 p-4">
@@ -479,18 +509,33 @@ export default function Chat() {
           </div>
         </aside>
 
+        {/* Collapsed Avatar - Mobile Optimized */}
+        {!isSidebarOpen && (
+          <div className="fixed top-4 left-4 z-30 flex items-center space-x-2 md:hidden">
+            {/* <RedQueenAvatar isTalking={isTalking} /> */}
+            {/* <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsSidebarOpen(true)}
+              className="ml-2 px-3 py-2 text-sm"
+            >
+              ☰
+            </Button> */}
+          </div>
+        )}
+
         {/* Main Chat Area */}
-        <main className="flex-1 flex flex-col">
+        <main className="flex-1 flex flex-col h-[calc(100vh-4rem)]">
 
           {/* Chat Messages */}
-          <div ref={messagesContainerRef} className="flex-1 p-4 overflow-y-auto">
-            <div className={`max-w-2xl mx-auto space-y-4 transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+          <div ref={messagesContainerRef} className="flex-1 p-3 sm:p-4 overflow-y-auto pb-20 md:pb-4">
+            <div className={`max-w-4xl mx-auto space-y-3 sm:space-y-4 transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
               {currentSession ? (
                 currentSession.messages.map((message, index) => {
                   const isLastAIMessage = message.role === 'assistant' && index === currentSession.messages.findLastIndex(m => m.role === 'assistant');
                   const isLatestUserMessage = message.role === 'user' && index === currentSession.messages.findLastIndex(m => m.role === 'user');
                   return (
-                  <div key={index} ref={isLatestUserMessage ? latestUserMessageRef : undefined} className={`p-3 text-black backdrop-blur-lg bg-white/70 rounded-md relative z-10 transition-all duration-200 ${
+                  <div key={index} ref={isLatestUserMessage ? latestUserMessageRef : undefined} className={`p-3 sm:p-4 text-black backdrop-blur-lg bg-white/70 rounded-md relative z-10 transition-all duration-200 text-sm sm:text-base ${
                     message.role === 'assistant' ? `border-l-4 border-red-500 hover:bg-white/90 hover:border-red-600 hover:shadow-md ${isLastAIMessage ? 'mb-80' : ''}` : 'border-r-4 border-blue-500 text-right hover:bg-white/90 hover:border-blue-600 hover:shadow-md'
                   }`}>
                     {message.isLoading ? (
@@ -560,29 +605,35 @@ export default function Chat() {
                   );
                 })
               ) : (
-                <div className="text-center py-12 lg:mt-20 bg-white/10 backdrop-blur-lg rounded-md">
-                  <h2 className="text-2xl font-bold bg-gradient-to-r from-red-500 via-yellow-500 to-black bg-clip-text text-transparent mt-4">Welcome to Red Queen AI</h2>
-                  <p className="text-white mt-2">Create a new chat session to get started with your AI assistant.</p>
+                <div className="text-center py-8 sm:py-12 lg:mt-20 bg-white/10 backdrop-blur-lg rounded-md px-4 sm:px-6">
+                  <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-red-500 via-yellow-500 to-black bg-clip-text text-transparent mt-4">Welcome to Red Queen AI</h2>
+                  <p className="text-white mt-2 text-sm sm:text-base">Create a new chat session to get started with your AI assistant.</p>
                   <Button className="mt-4 red-button" onClick={createNewSession}>Start New Chat</Button>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Input Area */}
-          <div className="p-4 bg-rq-black backdrop-blur-lg border-t border-gray-200 dark:border-gray-700">
+          {/* Input Area - Fixed on Mobile */}
+          <div className="fixed bottom-0 left-0 right-0 md:relative md:bottom-auto bg-rq-black backdrop-blur-lg border-t border-gray-200 dark:border-gray-700 p-3 sm:p-4 z-10">
             <div className="max-w-4xl mx-auto">
-              <div className="flex space-x-2">
+              <div className="flex gap-2 sm:gap-3">
                 <Input
                   type="text"
                   placeholder={currentSession ? "Type your message..." : "Create a chat session to start"}
-                  className="flex-1 backdrop-blur-lg bg-white/70 hover:bg-white/80 focus:ring-2 focus:ring-red-500 transition-all duration-200 hover:shadow-md"
+                  className="flex-1 min-h-[44px] sm:min-h-[48px] backdrop-blur-lg bg-white/70 hover:bg-white/80 focus:ring-2 focus:ring-red-500 transition-all duration-200 hover:shadow-md px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base touch-manipulation"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                   disabled={!currentSession}
                 />
-                <Button onClick={handleSend} disabled={isTalking || !currentSession} className="hover:bg-red-600 hover:shadow-md transition-all duration-200 hover:scale-105">Send</Button>
+                <Button
+                  onClick={handleSend}
+                  disabled={isTalking || !currentSession}
+                  className="h-[44px] w-[44px] sm:h-[48px] sm:w-[48px] shrink-0 hover:bg-red-600 hover:shadow-md transition-all duration-200 hover:scale-105"
+                >
+                  Send
+                </Button>
               </div>
             </div>
           </div>
