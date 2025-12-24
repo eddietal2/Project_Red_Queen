@@ -148,7 +148,7 @@ class ProjectAnalyzer:
         patterns = [
             r'function\s+(\w+)\s*\(',
             r'const\s+(\w+)\s*=\s*\(\s*\)\s*=>',
-            r'const\s+(\w+)\s*=\s*\(\s*\{\s*\}\s*\)\s*=>',
+            r'const\s+(\w+)\s*=\s*\([^)]*\)\s*=>',
             r'class\s+(\w+)\s+extends\s+React\.Component'
         ]
         for pattern in patterns:
@@ -161,8 +161,8 @@ class ProjectAnalyzer:
         imports = set()
         # Match import statements
         import_patterns = [
-            r'import\s+.*?\s+from\s+[\'"]([^\'"]+)[\'"]',
-            r'import\s+\{[^}]+\}\s+from\s+[\'"]([^\'"]+)[\'"]'
+            r"import\s+.*?\s+from\s+['\"]([^'\"]*)['\"]",
+            r"import\s+\{[^}]+\}\s+from\s+['\"]([^'\"]*)['\"]"
         ]
         for pattern in import_patterns:
             matches = re.findall(pattern, content)
@@ -210,7 +210,7 @@ class ProjectAnalyzer:
 
 def generate_backend_diagram(analyzer: ProjectAnalyzer) -> str:
     """Generate Mermaid diagram for backend."""
-    diagram = r'''```mermaid
+    diagram = '''```mermaid
 graph TB
     %% User Interaction
     USER["User"] --> API["Django REST API<br/>b-e/config/urls.py"]
@@ -268,7 +268,7 @@ graph TB
 
 def generate_frontend_diagram(analyzer: ProjectAnalyzer) -> str:
     """Generate Mermaid diagram for frontend."""
-    diagram = r'''```mermaid
+    diagram = '''```mermaid
 graph TB
     %% User Interface
     USER["User"] --> BROWSER["Web Browser"]
@@ -338,7 +338,7 @@ graph TB
 
 def generate_full_stack_diagram(analyzer: ProjectAnalyzer) -> str:
     """Generate combined full-stack diagram."""
-    diagram = r'''```mermaid
+    diagram = '''```mermaid
 graph TB
     %% Users
     subgraph "Users"
