@@ -136,3 +136,9 @@ pnpm-error.log*
 # Scraped data directories
 b-e/chroma/red_queen_knowledge/*/data
 b-e/chroma/red_queen_knowledge/urls
+
+# Batch update files
+batch_update_*
+
+# Chroma DB
+/b-e/chrome/red_queen_knowledge_chroma_db
