@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
@@ -8,6 +8,7 @@ import os
 import logging
 from datetime import datetime
 from .utils import llm, load_system_prompt
+from .tts_module import TTSModule
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +81,33 @@ def chat(request):
                 if not getattr(settings, 'TEST_MODE', False):
                     log_api_usage()
                 answer = llm.complete(full_prompt)
-                return JsonResponse({'answer': str(answer)})
+                answer_text = str(answer)
+                
+                # Generate speech from the answer
+                tts = TTSModule()
+                
+                # Handle async TTS generation in sync context
+                import asyncio
+                try:
+                    # Create a new event loop for this thread
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    audio_path = loop.run_until_complete(tts.generate_speech(answer_text))
+                    loop.close()
+                    
+                    # Return the MP3 file
+                    with open(audio_path, 'rb') as audio_file:
+                        audio_data = audio_file.read()
+                    
+                    response = HttpResponse(audio_data, content_type='audio/mpeg')
+                    response['Content-Disposition'] = 'attachment; filename="response.mp3"'
+                    return response
+                    
+                except Exception as tts_error:
+                    logger.error(f"TTS generation failed: {tts_error}")
+                    # Fallback to JSON response if TTS fails
+                    return JsonResponse({'answer': answer_text, 'tts_error': str(tts_error)})
+                
             except Exception as e:
                 error_str = str(e)
                 if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or "quota exceeded" in error_str.lower():
