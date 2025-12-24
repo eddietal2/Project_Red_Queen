@@ -535,8 +535,8 @@ export default function Chat() {
                   const isLastAIMessage = message.role === 'assistant' && index === currentSession.messages.findLastIndex(m => m.role === 'assistant');
                   const isLatestUserMessage = message.role === 'user' && index === currentSession.messages.findLastIndex(m => m.role === 'user');
                   return (
-                  <div key={index} ref={isLatestUserMessage ? latestUserMessageRef : undefined} className={`p-3 sm:p-4 text-black backdrop-blur-lg bg-white/70 rounded-md relative z-10 transition-all duration-200 text-sm sm:text-base ${
-                    message.role === 'assistant' ? `border-l-4 border-red-500 hover:bg-white/90 hover:border-red-600 hover:shadow-md ${isLastAIMessage ? 'mb-80' : ''}` : 'border-r-4 border-blue-500 text-right hover:bg-white/90 hover:border-blue-600 hover:shadow-md'
+                  <div key={index} ref={isLatestUserMessage ? latestUserMessageRef : undefined} className={`p-3 sm:p-4 text-white backdrop-blur-lg bg-black/70 rounded-md relative z-10 transition-all duration-200 text-sm sm:text-base ${
+                    message.role === 'assistant' ? `border-l-4 border-red-500 hover:bg-black/90 hover:border-red-600 hover:shadow-md ${isLastAIMessage ? 'mb-80' : ''}` : 'border-r-4 border-blue-500 text-right hover:bg-black/90 hover:border-blue-600 hover:shadow-md'
                   }`}>
                     {message.isLoading ? (
                       <div className="flex items-center space-x-2">
@@ -571,7 +571,7 @@ export default function Chat() {
                             ⋮
                           </button>
                         )}
-                        <p className={`text-lg ${message.role === 'user' ? 'ml-8' : ''}`}>
+                        <p className={`text-sm ${message.role === 'user' ? 'ml-8' : ''}`}>
                           {message.role === 'assistant' && index === currentSession.messages.length - 1 && isTyping
                             ? typingMessage + (typingMessage.length < message.content.length ? '|' : '')
                             : message.content
