@@ -3,6 +3,8 @@
 Architecture Diagram Generator for Project_Red_Queen
 
 Automatically analyzes both backend (b-e) and frontend (f-e) and generates Mermaid diagrams
+
+- python generate_architecture.py
 """
 
 import os
