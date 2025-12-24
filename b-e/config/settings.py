@@ -23,6 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Custom settings
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 SYSTEM_PROMPT_PATH = BASE_DIR / 'system_prompt.txt'
+TEST_MODE = os.environ.get("TEST_MODE", "false").lower() == "true"
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [

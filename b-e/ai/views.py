@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.conf import settings
 import json
 import os
 import logging
@@ -75,7 +76,9 @@ def chat(request):
         max_retries = 3
         for attempt in range(max_retries):
             try:
-                log_api_usage()
+                # Only log API usage in live mode
+                if not getattr(settings, 'TEST_MODE', False):
+                    log_api_usage()
                 answer = llm.complete(full_prompt)
                 return JsonResponse({'answer': str(answer)})
             except Exception as e:
