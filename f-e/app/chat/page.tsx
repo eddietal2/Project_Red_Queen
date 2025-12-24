@@ -320,14 +320,14 @@ export default function Chat() {
           let currentWordIndex = 0;
           
           // Calculate approximate timing per word (rough estimate)
-          const wordDelay = Math.max(200, 1000 / words.length); // minimum 200ms per word
+          let wordDelay = Math.max(200, 1000 / words.length); // minimum 200ms per word
           
           // Function to highlight current word
           const highlightWord = () => {
             if (currentWordIndex < words.length) {
               const highlightedText: string = words.map((word: string, index: number) => 
                 index === currentWordIndex 
-                  ? `<span class="bg-yellow-200 px-1 rounded">${word}</span>` 
+                  ? `<span class="bg-yellow-300 px-1 rounded font-semibold text-black border border-yellow-500 shadow-sm">${word}</span>` 
                   : word
               ).join(' ');
               
@@ -358,7 +358,12 @@ export default function Chat() {
             }
           };
           
-          // Play the audio and start highlighting
+          // Play the audio and start highlighting with proper timing
+          audio.addEventListener('loadedmetadata', () => {
+            const audioDuration = audio.duration * 1000; // Convert to milliseconds
+            wordDelay = Math.max(150, audioDuration / words.length); // Better timing based on actual audio duration
+          });
+          
           audio.play();
           highlightWord(); // Start highlighting immediately
           
@@ -454,14 +459,14 @@ export default function Chat() {
           let currentWordIndex = 0;
           
           // Calculate approximate timing per word (rough estimate)
-          const wordDelay = Math.max(200, 1000 / words.length); // minimum 200ms per word
+          let wordDelay = Math.max(200, 1000 / words.length); // minimum 200ms per word
           
           // Function to highlight current word
           const highlightWord = () => {
             if (currentWordIndex < words.length) {
               const highlightedText: string = words.map((word: string, index: number) => 
                 index === currentWordIndex 
-                  ? `<span class="bg-red-500 px-1 rounded">${word}</span>` 
+                  ? `<span class="bg-yellow-300 px-1 rounded font-semibold text-black border border-yellow-500 shadow-sm">${word}</span>` 
                   : word
               ).join(' ');
               
@@ -492,7 +497,12 @@ export default function Chat() {
             }
           };
           
-          // Play the audio and start highlighting
+          // Play the audio and start highlighting with proper timing
+          audio.addEventListener('loadedmetadata', () => {
+            const audioDuration = audio.duration * 1000; // Convert to milliseconds
+            wordDelay = Math.max(150, audioDuration / words.length); // Better timing based on actual audio duration
+          });
+          
           audio.play();
           highlightWord(); // Start highlighting immediately
           
