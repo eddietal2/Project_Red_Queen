@@ -303,28 +303,73 @@ export default function Chat() {
         body: JSON.stringify({ question: editValue.trim() }),
       });
       
-      // Check if response is MP3 audio
-      if (response.headers.get('content-type') === 'audio/mpeg') {
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
+      // Check if response is JSON with text and audio
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
         
-        // Play the audio response
-        audio.play();
-        
-        // Clean up the blob URL after audio ends
-        audio.onended = () => {
-          URL.revokeObjectURL(audioUrl);
-        };
-        
-        // For display purposes, show a placeholder message
-        const assistantMessage: Message = { role: 'assistant', content: '🎵 Audio response played' };
-        finalMessages = [...finalMessages.slice(0, -1), assistantMessage];
-        finalSession = { ...finalSession, messages: finalMessages };
-        const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
-        saveSessions(finalSessions);
-        setIsTalking(false);
-        return;
+        if (data.text && data.audio) {
+          // Handle text and audio response
+          const audioData = Uint8Array.from(atob(data.audio), c => c.charCodeAt(0));
+          const audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          const audio = new Audio(audioUrl);
+          
+          // Split text into words for highlighting
+          const words = data.text.split(' ');
+          let currentWordIndex = 0;
+          
+          // Calculate approximate timing per word (rough estimate)
+          const wordDelay = Math.max(200, 1000 / words.length); // minimum 200ms per word
+          
+          // Function to highlight current word
+          const highlightWord = () => {
+            if (currentWordIndex < words.length) {
+              const highlightedText: string = words.map((word: string, index: number) => 
+                index === currentWordIndex 
+                  ? `<span class="bg-yellow-200 px-1 rounded">${word}</span>` 
+                  : word
+              ).join(' ');
+              
+              // Update the message content with highlighting
+              const highlightedMessage: Message = { 
+                role: 'assistant', 
+                content: highlightedText 
+              };
+              finalMessages = [...finalMessages.slice(0, -1), highlightedMessage];
+              finalSession = { ...finalSession, messages: finalMessages };
+              const updatedSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
+              saveSessions(updatedSessions);
+              
+              currentWordIndex++;
+              
+              // Schedule next word highlight
+              setTimeout(highlightWord, wordDelay);
+            } else {
+              // Finished highlighting, show final text without highlighting
+              const finalMessage: Message = { 
+                role: 'assistant', 
+                content: data.text 
+              };
+              finalMessages = [...finalMessages.slice(0, -1), finalMessage];
+              finalSession = { ...finalSession, messages: finalMessages };
+              const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
+              saveSessions(finalSessions);
+            }
+          };
+          
+          // Play the audio and start highlighting
+          audio.play();
+          highlightWord(); // Start highlighting immediately
+          
+          // Clean up the blob URL after audio ends
+          audio.onended = () => {
+            URL.revokeObjectURL(audioUrl);
+          };
+          
+          setIsTalking(false);
+          return;
+        }
       }
       
       // Handle JSON response (for errors or fallback)
@@ -392,28 +437,73 @@ export default function Chat() {
         body: JSON.stringify({ question: inputValue }),
       });
       
-      // Check if response is MP3 audio
-      if (response.headers.get('content-type') === 'audio/mpeg') {
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
+      // Check if response is JSON with text and audio
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
         
-        // Play the audio response
-        audio.play();
-        
-        // Clean up the blob URL after audio ends
-        audio.onended = () => {
-          URL.revokeObjectURL(audioUrl);
-        };
-        
-        // For display purposes, show a placeholder message
-        const assistantMessage: Message = { role: 'assistant', content: '🎵 Audio response played' };
-        const finalMessages = [...updatedMessages.slice(0, -1), assistantMessage]; // Replace loading
-        const finalSession = { ...updatedSession, messages: finalMessages };
-        const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
-        saveSessions(finalSessions);
-        setIsTalking(false);
-        return;
+        if (data.text && data.audio) {
+          // Handle text and audio response
+          const audioData = Uint8Array.from(atob(data.audio), c => c.charCodeAt(0));
+          const audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          const audio = new Audio(audioUrl);
+          
+          // Split text into words for highlighting
+          const words = data.text.split(' ');
+          let currentWordIndex = 0;
+          
+          // Calculate approximate timing per word (rough estimate)
+          const wordDelay = Math.max(200, 1000 / words.length); // minimum 200ms per word
+          
+          // Function to highlight current word
+          const highlightWord = () => {
+            if (currentWordIndex < words.length) {
+              const highlightedText: string = words.map((word: string, index: number) => 
+                index === currentWordIndex 
+                  ? `<span class="bg-red-500 px-1 rounded">${word}</span>` 
+                  : word
+              ).join(' ');
+              
+              // Update the message content with highlighting
+              const highlightedMessage: Message = { 
+                role: 'assistant', 
+                content: highlightedText 
+              };
+              const finalMessages = [...updatedMessages.slice(0, -1), highlightedMessage]; // Replace loading
+              const finalSession = { ...updatedSession, messages: finalMessages };
+              const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
+              saveSessions(finalSessions);
+              
+              currentWordIndex++;
+              
+              // Schedule next word highlight
+              setTimeout(highlightWord, wordDelay);
+            } else {
+              // Finished highlighting, show final text without highlighting
+              const finalMessage: Message = { 
+                role: 'assistant', 
+                content: data.text 
+              };
+              const finalMessages = [...updatedMessages.slice(0, -1), finalMessage]; // Replace loading
+              const finalSession = { ...updatedSession, messages: finalMessages };
+              const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
+              saveSessions(finalSessions);
+            }
+          };
+          
+          // Play the audio and start highlighting
+          audio.play();
+          highlightWord(); // Start highlighting immediately
+          
+          // Clean up the blob URL after audio ends
+          audio.onended = () => {
+            URL.revokeObjectURL(audioUrl);
+          };
+          
+          setIsTalking(false);
+          return;
+        }
       }
       
       // Handle JSON response (for errors or fallback)
@@ -623,12 +713,14 @@ export default function Chat() {
                             ⋮
                           </button>
                         )}
-                        <p className={`text-sm ${message.role === 'user' ? 'ml-8' : ''}`}>
+                        <div className={`text-sm ${message.role === 'user' ? 'ml-8' : ''}`}>
                           {message.role === 'assistant' && index === currentSession.messages.length - 1 && isTyping
                             ? typingMessage + (typingMessage.length < message.content.length ? '|' : '')
-                            : message.content
+                            : message.content.includes('<span') 
+                              ? <div dangerouslySetInnerHTML={{ __html: message.content }} />
+                              : message.content
                           }
-                        </p>
+                        </div>
                         {openMessageMenuId === `${index}` && message.role === 'user' && (
                           <div ref={messageMenuRef} className="absolute left-0 top-8 mt-1 w-32 bg-white border border-gray-300 rounded shadow-lg !z-[999]">
                             <button

@@ -96,15 +96,21 @@ def chat(request):
                     audio_path = loop.run_until_complete(tts.generate_speech(answer_text))
                     loop.close()
                     
-                    # Return the MP3 file
+                    # Return both text and audio
                     with open(audio_path, 'rb') as audio_file:
                         audio_data = audio_file.read()
                     
                     # Get the filename from the generated path
                     filename = Path(audio_path).name
-                    response = HttpResponse(audio_data, content_type='audio/mpeg')
-                    response['Content-Disposition'] = f'attachment; filename="{filename}"'
-                    return response
+                    
+                    # Return JSON response with both text and audio
+                    import base64
+                    response_data = {
+                        'text': answer_text,
+                        'audio': base64.b64encode(audio_data).decode('utf-8'),
+                        'filename': filename
+                    }
+                    return JsonResponse(response_data)
                     
                 except Exception as tts_error:
                     logger.error(f"TTS generation failed: {tts_error}")
@@ -120,9 +126,15 @@ def chat(request):
                             audio_data = audio_file.read()
                         
                         filename = Path(audio_path).name
-                        response = HttpResponse(audio_data, content_type='audio/mpeg')
-                        response['Content-Disposition'] = f'attachment; filename="{filename}"'
-                        return response
+                        
+                        # Return JSON response with both text and audio
+                        import base64
+                        response_data = {
+                            'text': fallback_text,
+                            'audio': base64.b64encode(audio_data).decode('utf-8'),
+                            'filename': filename
+                        }
+                        return JsonResponse(response_data)
                     except Exception as fallback_error:
                         logger.error(f"Fallback TTS also failed: {fallback_error}")
                         # Last resort: return a simple beep or error tone
