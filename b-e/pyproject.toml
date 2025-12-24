@@ -18,6 +18,5 @@ dependencies = [
     "llama-parse",
     "python-dotenv>=1.2.1",
     "chromadb",
-    "beautifulsoup4",
-    "edge-tts",
+    "beautifulsoup4"
 ]
