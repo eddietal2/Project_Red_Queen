@@ -7,6 +7,7 @@ import json
 import os
 import logging
 from datetime import datetime
+from pathlib import Path
 from .utils import llm, load_system_prompt
 from .tts_module import TTSModule
 
@@ -99,14 +100,34 @@ def chat(request):
                     with open(audio_path, 'rb') as audio_file:
                         audio_data = audio_file.read()
                     
+                    # Get the filename from the generated path
+                    filename = Path(audio_path).name
                     response = HttpResponse(audio_data, content_type='audio/mpeg')
-                    response['Content-Disposition'] = 'attachment; filename="response.mp3"'
+                    response['Content-Disposition'] = f'attachment; filename="{filename}"'
                     return response
                     
                 except Exception as tts_error:
                     logger.error(f"TTS generation failed: {tts_error}")
-                    # Fallback to JSON response if TTS fails
-                    return JsonResponse({'answer': answer_text, 'tts_error': str(tts_error)})
+                    # Generate fallback audio for the error
+                    try:
+                        fallback_text = "I'm sorry, there was an error generating the audio response. Please try again."
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                        audio_path = loop.run_until_complete(tts.generate_speech(fallback_text))
+                        loop.close()
+                        
+                        with open(audio_path, 'rb') as audio_file:
+                            audio_data = audio_file.read()
+                        
+                        filename = Path(audio_path).name
+                        response = HttpResponse(audio_data, content_type='audio/mpeg')
+                        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                        return response
+                    except Exception as fallback_error:
+                        logger.error(f"Fallback TTS also failed: {fallback_error}")
+                        # Last resort: return a simple beep or error tone
+                        # For now, return JSON as final fallback
+                        return JsonResponse({'error': 'Audio generation failed', 'message': str(tts_error)})
                 
             except Exception as e:
                 error_str = str(e)

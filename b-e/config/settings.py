@@ -74,6 +74,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 
+# Disable APPEND_SLASH to avoid redirect issues with POST requests
+APPEND_SLASH = False
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

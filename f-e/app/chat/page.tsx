@@ -280,8 +280,8 @@ export default function Chat() {
     // Send new request
     setIsTalking(true);
     const loadingMessage: Message = { role: 'assistant', content: '', isLoading: true };
-    const finalMessages = [...trimmedMessages, loadingMessage];
-    const finalSession = { ...updatedSession, messages: finalMessages };
+    let finalMessages = [...trimmedMessages, loadingMessage];
+    let finalSession = { ...updatedSession, messages: finalMessages };
     const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
     saveSessions(finalSessions);
 
@@ -302,6 +302,32 @@ export default function Chat() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: editValue.trim() }),
       });
+      
+      // Check if response is MP3 audio
+      if (response.headers.get('content-type') === 'audio/mpeg') {
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        
+        // Play the audio response
+        audio.play();
+        
+        // Clean up the blob URL after audio ends
+        audio.onended = () => {
+          URL.revokeObjectURL(audioUrl);
+        };
+        
+        // For display purposes, show a placeholder message
+        const assistantMessage: Message = { role: 'assistant', content: '🎵 Audio response played' };
+        finalMessages = [...finalMessages.slice(0, -1), assistantMessage];
+        finalSession = { ...finalSession, messages: finalMessages };
+        const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
+        saveSessions(finalSessions);
+        setIsTalking(false);
+        return;
+      }
+      
+      // Handle JSON response (for errors or fallback)
       const data = await response.json();
       const fullAnswer = data.answer || 'Sorry, I couldn\'t generate a response.';
       
@@ -365,6 +391,32 @@ export default function Chat() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: inputValue }),
       });
+      
+      // Check if response is MP3 audio
+      if (response.headers.get('content-type') === 'audio/mpeg') {
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        
+        // Play the audio response
+        audio.play();
+        
+        // Clean up the blob URL after audio ends
+        audio.onended = () => {
+          URL.revokeObjectURL(audioUrl);
+        };
+        
+        // For display purposes, show a placeholder message
+        const assistantMessage: Message = { role: 'assistant', content: '🎵 Audio response played' };
+        const finalMessages = [...updatedMessages.slice(0, -1), assistantMessage]; // Replace loading
+        const finalSession = { ...updatedSession, messages: finalMessages };
+        const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
+        saveSessions(finalSessions);
+        setIsTalking(false);
+        return;
+      }
+      
+      // Handle JSON response (for errors or fallback)
       const data = await response.json();
       const fullAnswer = data.answer || 'Sorry, I couldn\'t generate a response.';
       

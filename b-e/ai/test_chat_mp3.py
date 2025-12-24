@@ -25,10 +25,11 @@ def test_chat_mp3():
 
     print(f'Status: {response.status_code}')
     print(f'Content-Type: {response.get("Content-Type")}')
+    print(f'Content-Disposition: {response.get("Content-Disposition")}')
     print(f'Content-Length: {len(response.content)} bytes')
 
     if response.status_code == 200 and 'audio/mpeg' in response.get('Content-Type', ''):
-        print('✅ SUCCESS: MP3 file returned')
+        print('✅ SUCCESS: MP3 file returned from official /chat API')
         # Save for verification in the ai/generated_audio directory
         file_path = os.path.join(os.path.dirname(__file__), 'generated_audio', 'verify_chat_response.mp3')
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
@@ -36,10 +37,18 @@ def test_chat_mp3():
             f.write(response.content)
         print(f'✅ Saved {file_path}')
         print(f'✅ File size: {len(response.content)} bytes')
+        
+        # Verify the filename in Content-Disposition contains timestamp
+        disposition = response.get('Content-Disposition', '')
+        if 'speech_' in disposition and '.mp3' in disposition:
+            print('✅ SUCCESS: Timestamped filename in response')
+        else:
+            print('⚠️  WARNING: Filename may not be timestamped')
+        
         return True
     else:
-        print('❌ FAILED: Expected MP3 response')
-        print(f'Response: {response.content[:200]}...')
+        print('❌ FAILED: Expected MP3 response from official API')
+        print(f'Response preview: {response.content[:200]}...')
         return False
 
 if __name__ == "__main__":
