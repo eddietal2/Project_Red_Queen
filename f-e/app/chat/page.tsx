@@ -13,7 +13,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo, memo } from "react";
+import React from "react";
 import RedQueenAvatar from "@/components/RedQueenAvatar";
 import Link from "next/link";
 
@@ -30,11 +31,17 @@ interface ChatSession {
   createdAt: string;
 }
 
+// Optimized Input component with memoization
+const MemoizedInput = memo(React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>((props, ref) => {
+  return <Input ref={ref} {...props} />;
+}));
+MemoizedInput.displayName = 'MemoizedInput';
+
 export default function Chat() {
   const [isTalking, setIsTalking] = useState(false);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
-  const [inputValue, setInputValue] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -53,7 +60,21 @@ export default function Chat() {
   const [editValue, setEditValue] = useState('');
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const currentSession = sessions.find(s => s.id === currentSessionId);
+  const currentSession = useMemo(() => 
+    sessions.find(s => s.id === currentSessionId), 
+    [sessions, currentSessionId]
+  );
+
+  // Memoize placeholder text to prevent unnecessary re-computations
+  const inputPlaceholder = useMemo(() => 
+    currentSession ? "Type your message..." : "Create a chat session to start",
+    [currentSession]
+  );
+
+  // Memoized send handler
+  const handleSendClick = useCallback(() => {
+    handleSend();
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -413,6 +434,7 @@ export default function Chat() {
   };
 
   async function handleSend() {
+    const inputValue = inputRef.current?.value || '';
     if (!inputValue.trim() || !currentSession) return;
 
     const userMessage: Message = { role: 'user', content: inputValue };
@@ -422,7 +444,10 @@ export default function Chat() {
     const updatedSessions = sessions.map(s => s.id === currentSessionId ? updatedSession : s);
     saveSessions(updatedSessions);
 
-    setInputValue('');
+    // Clear the input
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
     setIsTalking(true);
     setTimeout(() => {
       const messageElement = latestUserMessageRef.current;
@@ -697,7 +722,7 @@ export default function Chat() {
                       </div>
                     ) : editingMessageId === `${index}` ? (
                       <div className="flex space-x-2">
-                        <Input
+                        <MemoizedInput
                           value={editValue}
                           onChange={(e) => setEditValue(e.target.value)}
                           onKeyDown={(e) => {
@@ -772,12 +797,12 @@ export default function Chat() {
           <div className="fixed bottom-0 left-0 right-0 md:relative md:bottom-auto bg-rq-black backdrop-blur-lg border-t border-gray-200 dark:border-gray-700 p-3 sm:p-4 z-10">
             <div className="max-w-4xl mx-auto">
               <div className="flex gap-2 sm:gap-3">
-                <Input
+                <MemoizedInput
+                  ref={inputRef}
                   type="text"
-                  placeholder={currentSession ? "Type your message..." : "Create a chat session to start"}
-                  className="flex-1 min-h-[44px] sm:min-h-[48px] backdrop-blur-lg bg-white/70 hover:bg-white/80 focus:ring-2 focus:ring-red-500 transition-all duration-200 hover:shadow-md px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base touch-manipulation"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder={inputPlaceholder}
+                  className="flex-1 min-h-[44px] sm:min-h-[48px] bg-white/90 focus:bg-white focus:ring-2 focus:ring-red-500 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base"
+                  defaultValue=""
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                   disabled={!currentSession}
                 />
@@ -822,7 +847,7 @@ export default function Chat() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="py-4">
-            <Input
+            <MemoizedInput
               value={renameValue}
               onChange={(e) => setRenameValue(e.target.value)}
               placeholder="New session name"
