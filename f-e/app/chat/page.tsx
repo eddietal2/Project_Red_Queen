@@ -271,6 +271,19 @@ export default function Chat() {
     setOpenMessageMenuId(null);
   };
 
+  const clearMessageHighlighting = (messageIndex: number) => {
+    if (currentSession && currentSession.messages[messageIndex]) {
+      const message = currentSession.messages[messageIndex];
+      // Clear any highlighting spans from the message content
+      const clearedContent = message.content.replace(/<span class="bg-yellow-300[^>]*>(.*?)<\/span>/g, '$1');
+      const updatedMessages = [...currentSession.messages];
+      updatedMessages[messageIndex] = { ...message, content: clearedContent };
+      const updatedSession = { ...currentSession, messages: updatedMessages };
+      const updatedSessions = sessions.map(s => s.id === currentSessionId ? updatedSession : s);
+      saveSessions(updatedSessions);
+    }
+  };
+
   const editMessage = (messageIndex: number) => {
     if (currentSession) {
       setEditValue(currentSession.messages[messageIndex].content);
@@ -507,9 +520,10 @@ export default function Chat() {
             // Clean up
             audio.removeEventListener('timeupdate', () => {});
             URL.revokeObjectURL(audioUrl); setCurrentAudio(null); // Clear current audio reference
+            
+            setIsTalking(false);
           };
           
-          setIsTalking(false);
           return;
         } else {
           // Handle JSON response (for errors or fallback) - when there's no audio
@@ -761,9 +775,10 @@ export default function Chat() {
             // Clean up
             audio.removeEventListener('timeupdate', () => {});
             URL.revokeObjectURL(audioUrl); setCurrentAudio(null); // Clear current audio reference
+            
+            setIsTalking(false);
           };
           
-          setIsTalking(false);
           return;
         } else {
           // Handle other JSON responses (errors or fallback)
@@ -1034,8 +1049,10 @@ export default function Chat() {
                                   setIsTalking(false);
                                   setCurrentAudio(null);
                                 }
+                                // Clear highlighting from this specific message
+                                clearMessageHighlighting(index);
                               }}
-                              disabled={!isTalking}
+                              disabled={!currentAudio}
                               title="Stop audio playback"
                             >
                               🔇 Stop Audio
