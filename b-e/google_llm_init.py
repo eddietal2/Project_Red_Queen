@@ -17,7 +17,7 @@ except UnicodeDecodeError:
     print("Warning: .env file has encoding issues in google_llm_init. Skipping.")
 
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
-TEST_MODE = os.environ.get("TEST_MODE", "false").lower() == "true"
+TEST_MODE = os.environ.get("TEST_MODE")
 
 class MockLLM:
     """Mock LLM for testing that doesn't use API calls"""
