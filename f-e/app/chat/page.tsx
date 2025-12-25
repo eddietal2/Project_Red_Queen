@@ -338,14 +338,32 @@ export default function Chat() {
           
           // Split text into words for highlighting
           const words = data.text.split(' ');
-          let currentWordIndex = 0;
+          let currentWordIndex = -1; // Start at -1 (no highlighting)
+          let speechStarted = false;
+          let lastHighlightTime = 0;
+          const MIN_WORD_DURATION = 300; // Minimum time per word in ms
+          const SPEECH_START_THRESHOLD = 1500; // Wait 1.5 seconds before starting highlights
           
-          // Calculate approximate timing per word (rough estimate)
-          let wordDelay = Math.max(200, 1000 / words.length); // minimum 200ms per word
-          
-          // Function to highlight current word
-          const highlightWord = () => {
-            if (currentWordIndex < words.length) {
+          // Function to highlight current word with conservative timing
+          const updateHighlighting = () => {
+            if (!audio || !speechStarted) return;
+            
+            const currentTime = audio.currentTime * 1000; // Convert to milliseconds
+            
+            // Only start highlighting after initial delay
+            if (currentTime < SPEECH_START_THRESHOLD) return;
+            
+            // Calculate which word should be highlighted
+            // Use a very conservative approach: assume ~200-300ms per word after speech starts
+            const speechTime = currentTime - SPEECH_START_THRESHOLD;
+            const estimatedWordsSpoken = Math.floor(speechTime / MIN_WORD_DURATION);
+            const targetWordIndex = Math.min(estimatedWordsSpoken, words.length - 1);
+            
+            // Only update if we've moved to a new word and enough time has passed
+            if (targetWordIndex > currentWordIndex && speechTime - lastHighlightTime > MIN_WORD_DURATION) {
+              currentWordIndex = targetWordIndex;
+              lastHighlightTime = speechTime;
+              
               const highlightedText: string = words.map((word: string, index: number) => 
                 index === currentWordIndex 
                   ? `<span class="bg-yellow-300 px-1 rounded font-semibold text-black border border-yellow-500 shadow-sm">${word}</span>` 
@@ -361,35 +379,34 @@ export default function Chat() {
               finalSession = { ...finalSession, messages: finalMessages };
               const updatedSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
               saveSessions(updatedSessions);
-              
-              currentWordIndex++;
-              
-              // Schedule next word highlight
-              setTimeout(highlightWord, wordDelay);
-            } else {
-              // Finished highlighting, show final text without highlighting
-              const finalMessage: Message = { 
-                role: 'assistant', 
-                content: data.text 
-              };
-              finalMessages = [...finalMessages.slice(0, -1), finalMessage];
-              finalSession = { ...finalSession, messages: finalMessages };
-              const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
-              saveSessions(finalSessions);
             }
           };
           
-          // Play the audio and start highlighting with proper timing
-          audio.addEventListener('loadedmetadata', () => {
-            const audioDuration = audio.duration * 1000; // Convert to milliseconds
-            wordDelay = Math.max(150, audioDuration / words.length); // Better timing based on actual audio duration
-          });
+          // Set up timeupdate listener for precise synchronization
+          audio.addEventListener('timeupdate', updateHighlighting);
           
+          // Mark speech as started after a brief delay
+          setTimeout(() => {
+            speechStarted = true;
+          }, 100);
+          
+          // Play the audio
           audio.play();
-          highlightWord(); // Start highlighting immediately
           
-          // Clean up the blob URL after audio ends
+          // Clean up the blob URL and listeners after audio ends
           audio.onended = () => {
+            // Clear any remaining highlighting
+            const finalMessage: Message = { 
+              role: 'assistant', 
+              content: data.text 
+            };
+            finalMessages = [...finalMessages.slice(0, -1), finalMessage];
+            finalSession = { ...finalSession, messages: finalMessages };
+            const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
+            saveSessions(finalSessions);
+            
+            // Clean up
+            audio.removeEventListener('timeupdate', updateHighlighting);
             URL.revokeObjectURL(audioUrl);
           };
           
