@@ -38,7 +38,9 @@ const MemoizedInput = memo(React.forwardRef<HTMLInputElement, React.InputHTMLAtt
 MemoizedInput.displayName = 'MemoizedInput';
 
 export default function Chat() {
+  const [copySuccess, setCopySuccess] = useState<string | null>(null);
   const [isTalking, setIsTalking] = useState(false);
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -337,7 +339,7 @@ export default function Chat() {
           const audioData = Uint8Array.from(atob(data.audio), c => c.charCodeAt(0));
           const audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
           const audioUrl = URL.createObjectURL(audioBlob);
-          const audio = new Audio(audioUrl);
+          const audio = new Audio(audioUrl); setCurrentAudio(audio); // Track current audio for stopping
           
           // Use precise word timings from backend
           const wordTimings = data.word_timings || [];
@@ -504,7 +506,7 @@ export default function Chat() {
             
             // Clean up
             audio.removeEventListener('timeupdate', () => {});
-            URL.revokeObjectURL(audioUrl);
+            URL.revokeObjectURL(audioUrl); setCurrentAudio(null); // Clear current audio reference
           };
           
           setIsTalking(false);
@@ -591,7 +593,7 @@ export default function Chat() {
           const audioData = Uint8Array.from(atob(data.audio), c => c.charCodeAt(0));
           const audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
           const audioUrl = URL.createObjectURL(audioBlob);
-          const audio = new Audio(audioUrl);
+          const audio = new Audio(audioUrl); setCurrentAudio(audio); // Track current audio for stopping
           
           // Use precise word timings from backend
           const wordTimings = data.word_timings || [];
@@ -758,7 +760,7 @@ export default function Chat() {
             
             // Clean up
             audio.removeEventListener('timeupdate', () => {});
-            URL.revokeObjectURL(audioUrl);
+            URL.revokeObjectURL(audioUrl); setCurrentAudio(null); // Clear current audio reference
           };
           
           setIsTalking(false);
@@ -987,6 +989,59 @@ export default function Chat() {
                               : message.content
                           }
                         </div>
+                        {message.role === 'assistant' && (
+                          <div className="flex items-center space-x-2 mt-2 ml-8">
+                            <button
+                              className="px-3 py-1 text-xs text-black bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                              onClick={async () => {
+                                const textToCopy = message.content.replace(/<[^>]*>/g, ''); // Remove HTML tags
+                                
+                                try {
+                                  // Try modern Clipboard API first
+                                  if (navigator.clipboard && navigator.clipboard.writeText) {
+                                    await navigator.clipboard.writeText(textToCopy);
+                                  } else {
+                                    // Fallback for older browsers
+                                    const textArea = document.createElement('textarea');
+                                    textArea.value = textToCopy;
+                                    textArea.style.position = 'fixed';
+                                    textArea.style.left = '-999999px';
+                                    textArea.style.top = '-999999px';
+                                    document.body.appendChild(textArea);
+                                    textArea.focus();
+                                    textArea.select();
+                                    document.execCommand('copy');
+                                    document.body.removeChild(textArea);
+                                  }
+                                  
+                                  setCopySuccess(`${index}`);
+                                  setTimeout(() => setCopySuccess(null), 2000);
+                                } catch (error) {
+                                  console.error('Failed to copy text:', error);
+                                  // Could show an error message to user here
+                                }
+                              }}
+                              title="Copy message"
+                            >
+                              {copySuccess === `${index}` ? '✅ Copied!' : '📋 Copy'}
+                            </button>
+                            <button
+                              className="px-3 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              onClick={() => {
+                                if (currentAudio) {
+                                  currentAudio.pause();
+                                  currentAudio.currentTime = 0;
+                                  setIsTalking(false);
+                                  setCurrentAudio(null);
+                                }
+                              }}
+                              disabled={!isTalking}
+                              title="Stop audio playback"
+                            >
+                              🔇 Stop Audio
+                            </button>
+                          </div>
+                        )}
                         {openMessageMenuId === `${index}` && message.role === 'user' && (
                           <div ref={messageMenuRef} className="absolute left-0 top-8 mt-1 w-32 bg-white border border-gray-300 rounded shadow-lg !z-[999]">
                             <button
