@@ -74,7 +74,7 @@ def process_timer_elapsed_time_success():
     """Returns the elapsed time since the start."""
     print(f"\n✅ {COLOR_GREEN}Completed in {time.time() - start_time:.2f} seconds{RESET_COLOR}\n")
     print(f"{COLOR_GREEN}██████████████████{RESET_COLOR}\n")
-    print(f"""
+    print(rf"""
                     | 
     ____________    __ {COLOR_GREEN}-+-{RESET_COLOR}  ____________ 
     \_____     /   /_ \{COLOR_GREEN} |{RESET_COLOR}   \     _____/

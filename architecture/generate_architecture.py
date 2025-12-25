@@ -10,6 +10,7 @@ Automatically analyzes both backend (b-e) and frontend (f-e) and generates Merma
 import os
 import ast
 import json
+import re
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
@@ -210,7 +211,7 @@ class ProjectAnalyzer:
 
 def generate_backend_diagram(analyzer: ProjectAnalyzer) -> str:
     """Generate Mermaid diagram for backend."""
-    diagram = '''```mermaid
+    diagram = r'''```mermaid
 graph TB
     %% User Interaction
     USER["User"] --> API["Django REST API<br/>b-e/config/urls.py"]
@@ -268,7 +269,7 @@ graph TB
 
 def generate_frontend_diagram(analyzer: ProjectAnalyzer) -> str:
     """Generate Mermaid diagram for frontend."""
-    diagram = '''```mermaid
+    diagram = r'''```mermaid
 graph TB
     %% User Interface
     USER["User"] --> BROWSER["Web Browser"]
@@ -338,7 +339,7 @@ graph TB
 
 def generate_full_stack_diagram(analyzer: ProjectAnalyzer) -> str:
     """Generate combined full-stack diagram."""
-    diagram = '''```mermaid
+    diagram = r'''```mermaid
 graph TB
     %% Users
     subgraph "Users"
@@ -433,6 +434,7 @@ def main():
 
     # Since this script is in the architecture/ directory, go up one level for project root
     project_root = Path(__file__).parent.parent
+    script_dir = Path(__file__).parent
     analyzer = ProjectAnalyzer(project_root)
 
     # Analyze both backend and frontend
@@ -444,19 +446,22 @@ def main():
 
     # Generate backend diagram
     backend_diagram = generate_backend_diagram(analyzer)
-    with open("architecture/backend_architecture.md", 'w', encoding='utf-8') as f:
+    backend_file = script_dir / "backend_architecture.md"
+    with open(backend_file, 'w', encoding='utf-8') as f:
         f.write(backend_diagram)
     print("✅ Backend architecture diagram generated: backend_architecture.md")
 
     # Generate frontend diagram
     frontend_diagram = generate_frontend_diagram(analyzer)
-    with open("architecture/frontend_architecture.md", 'w', encoding='utf-8') as f:
+    frontend_file = script_dir / "frontend_architecture.md"
+    with open(frontend_file, 'w', encoding='utf-8') as f:
         f.write(frontend_diagram)
     print("✅ Frontend architecture diagram generated: frontend_architecture.md")
 
     # Generate full-stack diagram
     full_stack_diagram = generate_full_stack_diagram(analyzer)
-    with open("architecture/fullstack_architecture.md", 'w', encoding='utf-8') as f:
+    fullstack_file = script_dir / "fullstack_architecture.md"
+    with open(fullstack_file, 'w', encoding='utf-8') as f:
         f.write(full_stack_diagram)
     print("✅ Full-stack architecture diagram generated: fullstack_architecture.md")
 
@@ -490,7 +495,8 @@ def main():
 - **File Processing**: Voice clip handling and storage
 """
 
-    with open("architecture/architecture_summary.md", 'w', encoding='utf-8') as f:
+    summary_file = script_dir / "architecture_summary.md"
+    with open(summary_file, 'w', encoding='utf-8') as f:
         f.write(report)
     print("📋 Architecture summary generated: architecture_summary.md")
 

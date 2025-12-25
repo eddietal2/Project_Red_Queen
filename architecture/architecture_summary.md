@@ -4,7 +4,7 @@
 - **Framework**: Django with Python 3.12
 - **AI Integration**: LlamaIndex + Google Gemini
 - **Database**: SQLite + Chroma Vector DB
-- **Modules Analyzed**: 28
+- **Modules Analyzed**: 34
 - **Key Dependencies**: django, llama_index
 
 ## Frontend (f-e) - Next.js + React
