@@ -364,7 +364,7 @@ export default function Chat() {
             console.log(`Highlighting word ${wordIndex}: "${wordToHighlight}" at audio time ${audio.currentTime.toFixed(3)}s`);
             
             // Clear any existing highlights first
-            let highlightedText = data.text;
+            let highlightedText = data.text_html || data.text;
             highlightedText = highlightedText.replace(/<span class="bg-yellow-300[^>]*>.*?<\/span>/g, (match: string) => {
               return match.replace(/<span[^>]*>(.*?)<\/span>/, '$1');
             });
@@ -495,7 +495,7 @@ export default function Chat() {
             // Clear any remaining highlighting
             const finalMessage: Message = { 
               role: 'assistant', 
-              content: data.text 
+              content: data.text_html || data.text 
             };
             finalMessages = [...finalMessages.slice(0, -1), finalMessage];
             finalSession = { ...finalSession, messages: finalMessages };
@@ -618,7 +618,7 @@ export default function Chat() {
             console.log(`Highlighting word ${wordIndex}: "${wordToHighlight}" at audio time ${audio.currentTime.toFixed(3)}s`);
             
             // Clear any existing highlights first
-            let highlightedText = data.text;
+            let highlightedText = data.text_html || data.text;
             highlightedText = highlightedText.replace(/<span class="bg-yellow-300[^>]*>.*?<\/span>/g, (match: string) => {
               return match.replace(/<span[^>]*>(.*?)<\/span>/, '$1');
             });
@@ -749,7 +749,7 @@ export default function Chat() {
             // Clear any remaining highlighting
             const finalMessage: Message = { 
               role: 'assistant', 
-              content: data.text 
+              content: data.text_html || data.text 
             };
             const finalMessages = [...updatedMessages.slice(0, -1), finalMessage]; // Replace loading
             const finalSession = { ...updatedSession, messages: finalMessages };
@@ -982,7 +982,7 @@ export default function Chat() {
                         <div className={`text-sm ${message.role === 'user' ? 'ml-8' : ''}`}>
                           {message.role === 'assistant' && index === currentSession.messages.length - 1 && isTyping
                             ? typingMessage + (typingMessage.length < message.content.length ? '|' : '')
-                            : message.content.includes('<span') 
+                            : message.content.includes('<span') || message.content.includes('<br>')
                               ? <div dangerouslySetInnerHTML={{ __html: message.content }} />
                               : message.content
                           }

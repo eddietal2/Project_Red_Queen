@@ -87,7 +87,10 @@ def chat(request):
                 # Clean wiki markup and formatting from the response
                 answer_text = clean_wiki_markup(answer_text)
                 
-                # Generate speech from the answer
+                # Convert newlines to HTML breaks for frontend display
+                answer_text_html = answer_text.replace('\n', '<br>')
+                
+                # Generate speech from the answer (use original text for TTS, not HTML)
                 tts = TTSModule()
                 
                 # Handle async TTS generation in sync context
@@ -111,7 +114,8 @@ def chat(request):
                     # Return JSON response with both text and audio
                     import base64
                     response_data = {
-                        'text': answer_text,
+                        'text': answer_text,  # Plain text for TTS
+                        'text_html': answer_text_html,  # HTML formatted text for display
                         'audio': base64.b64encode(audio_data).decode('utf-8'),
                         'filename': filename,
                         'word_timings': word_timings

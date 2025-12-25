@@ -111,7 +111,7 @@ def clean_wiki_markup(text):
     """
     Clean wiki markup and formatting characters from text to make it readable.
     Removes wiki templates, links, formatting, and special characters that would
-    be pronounced by TTS.
+    be pronounced by TTS. Also adds natural paragraph breaks for better readability.
     """
     import re
 
@@ -141,7 +141,7 @@ def clean_wiki_markup(text):
     text = re.sub(r'[-]{2,}', '', text)      # Remove --, ---, etc.
     text = re.sub(r'[|]{2,}', '', text)      # Remove ||, |||, etc. (table separators)
 
-    # Remove extra whitespace and newlines
+    # Clean up whitespace first
     text = re.sub(r'\n\s*\n', '\n\n', text)  # Multiple newlines to double
     text = re.sub(r'\n{3,}', '\n\n', text)   # More than 2 newlines to double
 
@@ -152,4 +152,77 @@ def clean_wiki_markup(text):
     # Remove empty lines at start/end
     text = text.strip()
 
+    # Add natural paragraph breaks
+    text = add_paragraph_breaks(text)
+
     return text
+
+def add_paragraph_breaks(text):
+    """
+    Add natural paragraph breaks to improve readability.
+    Breaks paragraphs at logical points based on sentence structure and content.
+    """
+    import re
+
+    # If text is very short, don't break it
+    if len(text) < 200:
+        return text
+
+    # Split into sentences (basic sentence detection)
+    # Look for periods, question marks, exclamation points followed by spaces and capital letters
+    sentences = re.split(r'(?<=[.!?])\s+(?=[A-Z])', text)
+
+    if len(sentences) < 3:
+        return text
+
+    # Group sentences into paragraphs
+    paragraphs = []
+    current_paragraph = []
+    sentence_count = 0
+
+    for sentence in sentences:
+        current_paragraph.append(sentence.strip())
+        sentence_count += 1
+
+        # Create a paragraph break after 2-4 sentences, or when we hit certain keywords
+        should_break = False
+
+        # Break after 2-4 sentences
+        if sentence_count >= 2 and sentence_count <= 4:
+            # Check if this would be a good break point
+            combined = ' '.join(current_paragraph)
+
+            # Break if the paragraph is getting long (over 150 characters)
+            if len(combined) > 150:
+                should_break = True
+
+            # Break before certain transition words
+            transition_words = ['however', 'therefore', 'moreover', 'furthermore', 'additionally',
+                              'consequently', 'similarly', 'likewise', 'in contrast', 'on the other hand',
+                              'meanwhile', 'subsequently', 'accordingly', 'thus', 'hence']
+
+            sentence_lower = sentence.lower()
+            if any(word in sentence_lower for word in transition_words):
+                should_break = True
+
+            # Break after introductory sentences
+            if sentence_count == 2 and len(combined) > 100:
+                should_break = True
+
+        if should_break or sentence_count >= 4:
+            paragraphs.append(' '.join(current_paragraph))
+            current_paragraph = []
+            sentence_count = 0
+
+    # Add any remaining sentences
+    if current_paragraph:
+        paragraphs.append(' '.join(current_paragraph))
+
+    # Join paragraphs with double newlines
+    result = '\n\n'.join(paragraphs)
+
+    # Clean up any excessive spacing
+    result = re.sub(r'\n{3,}', '\n\n', result)
+    result = re.sub(r' {2,}', ' ', result)
+
+    return result.strip()
