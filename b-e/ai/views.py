@@ -8,7 +8,7 @@ import os
 import logging
 from datetime import datetime
 from pathlib import Path
-from .utils import llm, load_system_prompt
+from .utils import llm, load_system_prompt, clean_wiki_markup
 from .tts_module import TTSModule
 
 logger = logging.getLogger(__name__)
@@ -83,6 +83,9 @@ def chat(request):
                     log_api_usage()
                 answer = llm.complete(full_prompt)
                 answer_text = str(answer)
+                
+                # Clean wiki markup and formatting from the response
+                answer_text = clean_wiki_markup(answer_text)
                 
                 # Generate speech from the answer
                 tts = TTSModule()

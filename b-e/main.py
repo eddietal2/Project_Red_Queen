@@ -3,6 +3,7 @@ from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings
 from google_llm_init import llm, log_api_usage
 import custom_console
 from datetime import datetime
+from ai.utils import clean_wiki_markup
 
 # Set up Gemini as the LLM
 Settings.llm = llm
@@ -73,7 +74,8 @@ def chat_with_gemini():
             print(f"{custom_console.COLOR_BLUE}Red Queen: {custom_console.RESET_COLOR}", end="", flush=True)
             log_api_usage()
             response = llm.complete(user_input)
-            print(response)
+            cleaned_response = clean_wiki_markup(str(response))
+            print(cleaned_response)
 
         except KeyboardInterrupt:
             print(f"\n{custom_console.COLOR_CYAN}👋 Goodbye!{custom_console.RESET_COLOR}")

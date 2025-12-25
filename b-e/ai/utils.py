@@ -106,3 +106,50 @@ def load_system_prompt():
     except FileNotFoundError:
         print(f"⚠️  System prompt file not found. Using default behavior.")
         return None
+
+def clean_wiki_markup(text):
+    """
+    Clean wiki markup and formatting characters from text to make it readable.
+    Removes wiki templates, links, formatting, and special characters that would
+    be pronounced by TTS.
+    """
+    import re
+
+    # Remove wiki templates like {{Infobox character}}, {{Quote}}, etc.
+    text = re.sub(r'\{\{[^{}]*\}\}', '', text)
+
+    # Remove wiki links [[Link|Display]] or [[Link]]
+    text = re.sub(r'\[\[[^\]]*\]\]', '', text)
+
+    # Remove emphasis markup: '''bold''', ''italic'', *bold*, etc.
+    text = re.sub(r"'''([^']*)'''", r'\1', text)  # Bold
+    text = re.sub(r"''([^']*)''", r'\1', text)    # Italic
+    text = re.sub(r'\*([^*]*)\*', r'\1', text)    # Bold *
+    text = re.sub(r'/([^/]*)/', r'\1', text)      # Italic /
+
+    # Remove headers: == Header ==, === Subheader ===, etc.
+    text = re.sub(r'^=+\s*(.*?)\s*=+$', r'\1', text, flags=re.MULTILINE)
+
+    # Remove list markers: *, #, etc. at beginning of lines
+    text = re.sub(r'^[*#]+\s*', '', text, flags=re.MULTILINE)
+
+    # Remove HTML-like tags (basic cleanup)
+    text = re.sub(r'<[^>]+>', '', text)
+
+    # Remove special formatting characters that TTS would pronounce
+    text = re.sub(r'[*_`~]{1,3}', '', text)  # Remove *, **, ***, _, __, ___, `, ``, ```, ~, ~~, ~~~
+    text = re.sub(r'[-]{2,}', '', text)      # Remove --, ---, etc.
+    text = re.sub(r'[|]{2,}', '', text)      # Remove ||, |||, etc. (table separators)
+
+    # Remove extra whitespace and newlines
+    text = re.sub(r'\n\s*\n', '\n\n', text)  # Multiple newlines to double
+    text = re.sub(r'\n{3,}', '\n\n', text)   # More than 2 newlines to double
+
+    # Remove leading/trailing whitespace from each line
+    lines = [line.strip() for line in text.split('\n')]
+    text = '\n'.join(lines)
+
+    # Remove empty lines at start/end
+    text = text.strip()
+
+    return text
