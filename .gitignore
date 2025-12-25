@@ -142,3 +142,6 @@ batch_update_*
 
 # Chroma DB
 /b-e/chrome/red_queen_knowledge_chroma_db
+
+# Generated audio files
+/b-e/ai/generated_audio
