@@ -329,6 +329,9 @@ export default function Chat() {
       if (contentType && contentType.includes('application/json')) {
         const data = await response.json();
         
+        console.log('Backend response data:', data);
+        console.log('Word timings received:', data.word_timings);
+        
         if (data.text && data.audio) {
           // Handle text and audio response
           const audioData = Uint8Array.from(atob(data.audio), c => c.charCodeAt(0));
@@ -336,65 +339,159 @@ export default function Chat() {
           const audioUrl = URL.createObjectURL(audioBlob);
           const audio = new Audio(audioUrl);
           
-          // Split text into words for highlighting
-          const words = data.text.split(' ');
-          let currentWordIndex = -1; // Start at -1 (no highlighting)
-          let speechStarted = false;
-          let lastHighlightTime = 0;
-          const MIN_WORD_DURATION = 300; // Minimum time per word in ms
-          const SPEECH_START_THRESHOLD = 1500; // Wait 1.5 seconds before starting highlights
+          // Use precise word timings from backend
+          const wordTimings = data.word_timings || [];
+          console.log('Word timings array:', wordTimings);
+          console.log('Word timings length:', wordTimings.length);
           
-          // Function to highlight current word with conservative timing
-          const updateHighlighting = () => {
-            if (!audio || !speechStarted) return;
+          // Log each word timing individually
+          wordTimings.forEach((timing: any, index: number) => {
+            console.log(`Word timing ${index}: "${timing.word}" from ${timing.start}s to ${timing.end}s`);
+          });
+          
+          let currentWordIndex = -1;
+          let audioStarted = false;
+          let highlightTimeout: NodeJS.Timeout | null = null;
+          
+          // Function to highlight a specific word for its duration
+          const highlightWord = (wordIndex: number) => {
+            if (wordIndex < 0 || wordIndex >= wordTimings.length) return;
             
-            const currentTime = audio.currentTime * 1000; // Convert to milliseconds
+            currentWordIndex = wordIndex;
+            const timing = wordTimings[wordIndex];
+            const wordToHighlight = timing.word;
             
-            // Only start highlighting after initial delay
-            if (currentTime < SPEECH_START_THRESHOLD) return;
+            console.log(`Highlighting word ${wordIndex}: "${wordToHighlight}" at audio time ${audio.currentTime.toFixed(3)}s`);
             
-            // Calculate which word should be highlighted
-            // Use a very conservative approach: assume ~200-300ms per word after speech starts
-            const speechTime = currentTime - SPEECH_START_THRESHOLD;
-            const estimatedWordsSpoken = Math.floor(speechTime / MIN_WORD_DURATION);
-            const targetWordIndex = Math.min(estimatedWordsSpoken, words.length - 1);
+            // Clear any existing highlights first
+            let highlightedText = data.text;
+            highlightedText = highlightedText.replace(/<span class="bg-yellow-300[^>]*>.*?<\/span>/g, (match: string) => {
+              return match.replace(/<span[^>]*>(.*?)<\/span>/, '$1');
+            });
             
-            // Only update if we've moved to a new word and enough time has passed
-            if (targetWordIndex > currentWordIndex && speechTime - lastHighlightTime > MIN_WORD_DURATION) {
-              currentWordIndex = targetWordIndex;
-              lastHighlightTime = speechTime;
+            // Split text into words and whitespace segments to preserve formatting
+            const segments = highlightedText.split(/(\s+)/);
+            
+            // Count occurrences of the target word up to the current word index
+            let targetOccurrence = 0;
+            for (let i = 0; i <= wordIndex; i++) {
+              if (wordTimings[i].word.toLowerCase() === wordToHighlight.toLowerCase()) {
+                targetOccurrence++;
+              }
+            }
+            
+            console.log(`Looking for occurrence ${targetOccurrence} of "${wordToHighlight}"`);
+            
+            let currentOccurrence = 0;
+            let replacementMade = false;
+            
+            const highlightedSegments = segments.map((segment: any) => {
+              // Only process actual words, not whitespace
+              if (!segment.trim()) return segment;
               
-              const highlightedText: string = words.map((word: string, index: number) => 
-                index === currentWordIndex 
-                  ? `<span class="bg-yellow-300 px-1 rounded font-semibold text-black border border-yellow-500 shadow-sm">${word}</span>` 
-                  : word
-              ).join(' ');
+              // Remove punctuation for comparison
+              const cleanWord = segment.replace(/[.,!?;:""''()]/g, '');
               
-              // Update the message content with highlighting
-              const highlightedMessage: Message = { 
-                role: 'assistant', 
-                content: highlightedText 
-              };
-              finalMessages = [...finalMessages.slice(0, -1), highlightedMessage];
-              finalSession = { ...finalSession, messages: finalMessages };
-              const updatedSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
-              saveSessions(updatedSessions);
+              if (cleanWord.toLowerCase() === wordToHighlight.toLowerCase()) {
+                currentOccurrence++;
+                // Highlight the specific occurrence we're looking for
+                if (!replacementMade && currentOccurrence === targetOccurrence) {
+                  replacementMade = true;
+                  return `<span class="bg-yellow-300 font-semibold text-black">${segment}</span>`;
+                }
+              }
+              return segment;
+            });
+            
+            highlightedText = highlightedSegments.join('');
+            
+            // Update the message content with highlighting
+            const highlightedMessage: Message = { 
+              role: 'assistant', 
+              content: highlightedText 
+            };
+            finalMessages = [...finalMessages.slice(0, -1), highlightedMessage];
+            finalSession = { ...finalSession, messages: finalMessages };
+            const updatedSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
+            saveSessions(updatedSessions);
+          };
+          
+          // Function to check and update highlighting based on current audio time
+          const checkHighlighting = () => {
+            if (!audioStarted || wordTimings.length === 0) {
+              console.log('checkHighlighting: audio not started or no word timings');
+              return;
+            }
+            
+            const currentTime = audio.currentTime;
+            
+            // Find the word that should be highlighted at the current time
+            let targetWordIndex = -1;
+            for (let i = 0; i < wordTimings.length; i++) {
+              const timing = wordTimings[i];
+              if (currentTime >= timing.start && currentTime < timing.end) {
+                targetWordIndex = i;
+                break;
+              }
+            }
+            
+            console.log(`checkHighlighting: audio time ${currentTime.toFixed(3)}s, target word index: ${targetWordIndex}, current word index: ${currentWordIndex}`);
+            
+            // If we found a word to highlight and it's different from current
+            if (targetWordIndex !== -1 && targetWordIndex !== currentWordIndex) {
+              console.log(`Highlighting word change: ${currentWordIndex} -> ${targetWordIndex}`);
+              highlightWord(targetWordIndex);
             }
           };
           
-          // Set up timeupdate listener for precise synchronization
-          audio.addEventListener('timeupdate', updateHighlighting);
+          // Start checking for highlighting updates
+          const startHighlighting = () => {
+            console.log('Starting word highlighting with audio time synchronization');
+            console.log('Word timings:', wordTimings);
+            
+            // Check highlighting every 5ms for ultra-precise synchronization with extremely short words
+            highlightTimeout = setInterval(checkHighlighting, 5);
+          };
           
-          // Mark speech as started after a brief delay
-          setTimeout(() => {
-            speechStarted = true;
-          }, 100);
+          audio.addEventListener('timeupdate', () => {
+            // Just for debugging - log occasionally
+            if (Math.random() < 0.02) {
+              console.log(`Audio time: ${audio.currentTime.toFixed(3)}s`);
+            }
+          });
+          
+          // Mark audio as started and begin highlighting sequence
+          audio.addEventListener('playing', () => {
+            audioStarted = true;
+            console.log(`Audio started playing at ${Date.now()}, beginning highlighting synchronization`);
+            startHighlighting();
+          });
+          
+          // Debug: Log when audio loads
+          audio.addEventListener('loadeddata', () => {
+            console.log('Audio loaded, duration:', audio.duration);
+          });
+          
+          // Clean up interval when audio ends
+          audio.addEventListener('ended', () => {
+            if (highlightTimeout) {
+              clearInterval(highlightTimeout);
+              highlightTimeout = null;
+            }
+            console.log('Audio ended, stopped highlighting');
+          });
           
           // Play the audio
           audio.play();
           
           // Clean up the blob URL and listeners after audio ends
           audio.onended = () => {
+            // Clear any remaining timeout
+            if (highlightTimeout) {
+              clearTimeout(highlightTimeout);
+              highlightTimeout = null;
+            }
+            
             // Clear any remaining highlighting
             const finalMessage: Message = { 
               role: 'assistant', 
@@ -406,38 +503,38 @@ export default function Chat() {
             saveSessions(finalSessions);
             
             // Clean up
-            audio.removeEventListener('timeupdate', updateHighlighting);
+            audio.removeEventListener('timeupdate', () => {});
             URL.revokeObjectURL(audioUrl);
           };
           
           setIsTalking(false);
           return;
+        } else {
+          // Handle JSON response (for errors or fallback) - when there's no audio
+          const fullAnswer = data.answer || 'Sorry, I couldn\'t generate a response.';
+          
+          // Check if quota was exceeded
+          if (data.quota_exceeded) {
+            // Don't show typing animation for quota messages
+            const assistantMessage: Message = { role: 'assistant', content: fullAnswer };
+            const finalMessages2 = [...finalMessages.slice(0, -1), assistantMessage];
+            const finalSession2 = { ...finalSession, messages: finalMessages2 };
+            const finalSessions2 = sessions.map(s => s.id === currentSessionId ? finalSession2 : s);
+            saveSessions(finalSessions2);
+            setIsTalking(false);
+            return;
+          }
+          
+          setTypingMessage('');
+          setIsTyping(true);
+          const assistantMessage: Message = { role: 'assistant', content: fullAnswer };
+          const finalMessages2 = [...finalMessages.slice(0, -1), assistantMessage];
+          const finalSession2 = { ...finalSession, messages: finalMessages2 };
+          const finalSessions2 = sessions.map(s => s.id === currentSessionId ? finalSession2 : s);
+          saveSessions(finalSessions2);
+          setIsTalking(false);
         }
       }
-      
-      // Handle JSON response (for errors or fallback)
-      const data = await response.json();
-      const fullAnswer = data.answer || 'Sorry, I couldn\'t generate a response.';
-      
-      // Check if quota was exceeded
-      if (data.quota_exceeded) {
-        // Don't show typing animation for quota messages
-        const assistantMessage: Message = { role: 'assistant', content: fullAnswer };
-        const finalMessages2 = [...finalMessages.slice(0, -1), assistantMessage];
-        const finalSession2 = { ...finalSession, messages: finalMessages2 };
-        const finalSessions2 = sessions.map(s => s.id === currentSessionId ? finalSession2 : s);
-        saveSessions(finalSessions2);
-        setIsTalking(false);
-        return;
-      }
-      
-      setTypingMessage('');
-      setIsTyping(true);
-      const assistantMessage: Message = { role: 'assistant', content: fullAnswer };
-      const finalMessages2 = [...finalMessages.slice(0, -1), assistantMessage];
-      const finalSession2 = { ...finalSession, messages: finalMessages2 };
-      const finalSessions2 = sessions.map(s => s.id === currentSessionId ? finalSession2 : s);
-      saveSessions(finalSessions2);
     } catch (error) {
       console.error('Error:', error);
       const errorMessage: Message = { role: 'assistant', content: 'Sorry, there was an error connecting to the AI.' };
@@ -483,12 +580,12 @@ export default function Chat() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: inputValue }),
       });
-      
-      // Check if response is JSON with text and audio
+
+      // Check if response is JSON
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
         const data = await response.json();
-        
+
         if (data.text && data.audio) {
           // Handle text and audio response
           const audioData = Uint8Array.from(atob(data.audio), c => c.charCodeAt(0));
@@ -496,91 +593,208 @@ export default function Chat() {
           const audioUrl = URL.createObjectURL(audioBlob);
           const audio = new Audio(audioUrl);
           
-          // Split text into words for highlighting
-          const words = data.text.split(' ');
-          let currentWordIndex = 0;
+          // Use precise word timings from backend
+          const wordTimings = data.word_timings || [];
+          console.log('Word timings array:', wordTimings);
+          console.log('Word timings length:', wordTimings.length);
           
-          // Calculate approximate timing per word (rough estimate)
-          let wordDelay = Math.max(200, 1000 / words.length); // minimum 200ms per word
+          // Log each word timing individually
+          wordTimings.forEach((timing: any, index: number) => {
+            console.log(`Word timing ${index}: "${timing.word}" from ${timing.start}s to ${timing.end}s`);
+          });
           
-          // Function to highlight current word
-          const highlightWord = () => {
-            if (currentWordIndex < words.length) {
-              const highlightedText: string = words.map((word: string, index: number) => 
-                index === currentWordIndex 
-                  ? `<span class="bg-yellow-300 px-1 rounded font-semibold text-black border border-yellow-500 shadow-sm">${word}</span>` 
-                  : word
-              ).join(' ');
+          let currentWordIndex = -1;
+          let audioStarted = false;
+          let highlightTimeout: NodeJS.Timeout | null = null;
+          
+          // Function to highlight a specific word for its duration
+          const highlightWord = (wordIndex: number) => {
+            if (wordIndex < 0 || wordIndex >= wordTimings.length) return;
+            
+            currentWordIndex = wordIndex;
+            const timing = wordTimings[wordIndex];
+            const wordToHighlight = timing.word;
+            
+            console.log(`Highlighting word ${wordIndex}: "${wordToHighlight}" at audio time ${audio.currentTime.toFixed(3)}s`);
+            
+            // Clear any existing highlights first
+            let highlightedText = data.text;
+            highlightedText = highlightedText.replace(/<span class="bg-yellow-300[^>]*>.*?<\/span>/g, (match: string) => {
+              return match.replace(/<span[^>]*>(.*?)<\/span>/, '$1');
+            });
+            
+            // Split text into words and whitespace segments to preserve formatting
+            const segments = highlightedText.split(/(\s+)/);
+            
+            // Count occurrences of the target word up to the current word index
+            let targetOccurrence = 0;
+            for (let i = 0; i <= wordIndex; i++) {
+              if (wordTimings[i].word.toLowerCase() === wordToHighlight.toLowerCase()) {
+                targetOccurrence++;
+              }
+            }
+            
+            console.log(`Looking for occurrence ${targetOccurrence} of "${wordToHighlight}"`);
+            
+            let currentOccurrence = 0;
+            let replacementMade = false;
+            
+            const highlightedSegments = segments.map((segment: any) => {
+              // Only process actual words, not whitespace
+              if (!segment.trim()) return segment;
               
-              // Update the message content with highlighting
-              const highlightedMessage: Message = { 
-                role: 'assistant', 
-                content: highlightedText 
-              };
-              const finalMessages = [...updatedMessages.slice(0, -1), highlightedMessage]; // Replace loading
-              const finalSession = { ...updatedSession, messages: finalMessages };
-              const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
-              saveSessions(finalSessions);
+              // Remove punctuation for comparison
+              const cleanWord = segment.replace(/[.,!?;:""''()]/g, '');
               
-              currentWordIndex++;
-              
-              // Schedule next word highlight
-              setTimeout(highlightWord, wordDelay);
-            } else {
-              // Finished highlighting, show final text without highlighting
-              const finalMessage: Message = { 
-                role: 'assistant', 
-                content: data.text 
-              };
-              const finalMessages = [...updatedMessages.slice(0, -1), finalMessage]; // Replace loading
-              const finalSession = { ...updatedSession, messages: finalMessages };
-              const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
-              saveSessions(finalSessions);
+              if (cleanWord.toLowerCase() === wordToHighlight.toLowerCase()) {
+                currentOccurrence++;
+                // Highlight the specific occurrence we're looking for
+                if (!replacementMade && currentOccurrence === targetOccurrence) {
+                  replacementMade = true;
+                  return `<span class="bg-yellow-300 font-semibold text-black">${segment}</span>`;
+                }
+              }
+              return segment;
+            });
+            
+            highlightedText = highlightedSegments.join('');
+            
+            // Update the message content with highlighting
+            const highlightedMessage: Message = { 
+              role: 'assistant', 
+              content: highlightedText 
+            };
+            const finalMessages = [...updatedMessages.slice(0, -1), highlightedMessage]; // Replace loading
+            const finalSession = { ...updatedSession, messages: finalMessages };
+            const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
+            saveSessions(finalSessions);
+          };
+          
+          // Function to check and update highlighting based on current audio time
+          const checkHighlighting = () => {
+            if (!audioStarted || wordTimings.length === 0) {
+              console.log('checkHighlighting: audio not started or no word timings');
+              return;
+            }
+            
+            const currentTime = audio.currentTime;
+            
+            // Find the word that should be highlighted at the current time
+            let targetWordIndex = -1;
+            for (let i = 0; i < wordTimings.length; i++) {
+              const timing = wordTimings[i];
+              if (currentTime >= timing.start && currentTime < timing.end) {
+                targetWordIndex = i;
+                break;
+              }
+            }
+            
+            console.log(`checkHighlighting: audio time ${currentTime.toFixed(3)}s, target word index: ${targetWordIndex}, current word index: ${currentWordIndex}`);
+            
+            // If we found a word to highlight and it's different from current
+            if (targetWordIndex !== -1 && targetWordIndex !== currentWordIndex) {
+              console.log(`Highlighting word change: ${currentWordIndex} -> ${targetWordIndex}`);
+              highlightWord(targetWordIndex);
             }
           };
           
-          // Play the audio and start highlighting with proper timing
-          audio.addEventListener('loadedmetadata', () => {
-            const audioDuration = audio.duration * 1000; // Convert to milliseconds
-            wordDelay = Math.max(150, audioDuration / words.length); // Better timing based on actual audio duration
+          // Start checking for highlighting updates
+          const startHighlighting = () => {
+            console.log('Starting word highlighting with audio time synchronization');
+            console.log('Word timings:', wordTimings);
+            
+            // Check highlighting every 5ms for ultra-precise synchronization with extremely short words
+            highlightTimeout = setInterval(checkHighlighting, 5);
+          };
+          
+          audio.addEventListener('timeupdate', () => {
+            // Just for debugging - log occasionally
+            if (Math.random() < 0.02) {
+              console.log(`Audio time: ${audio.currentTime.toFixed(3)}s`);
+            }
           });
           
-          audio.play();
-          highlightWord(); // Start highlighting immediately
+          // Mark audio as started and begin highlighting sequence
+          audio.addEventListener('playing', () => {
+            audioStarted = true;
+            console.log(`Audio started playing at ${Date.now()}, beginning highlighting synchronization`);
+            startHighlighting();
+          });
           
-          // Clean up the blob URL after audio ends
+          // Debug: Log when audio loads
+          audio.addEventListener('loadeddata', () => {
+            console.log('Audio loaded, duration:', audio.duration);
+          });
+          
+          // Clean up interval when audio ends
+          audio.addEventListener('ended', () => {
+            if (highlightTimeout) {
+              clearInterval(highlightTimeout);
+              highlightTimeout = null;
+            }
+            console.log('Audio ended, stopped highlighting');
+          });
+          
+          // Play the audio
+          audio.play();
+          
+          // Clean up the blob URL and listeners after audio ends
           audio.onended = () => {
+            // Clear any remaining timeout
+            if (highlightTimeout) {
+              clearTimeout(highlightTimeout);
+              highlightTimeout = null;
+            }
+            
+            // Clear any remaining highlighting
+            const finalMessage: Message = { 
+              role: 'assistant', 
+              content: data.text 
+            };
+            const finalMessages = [...updatedMessages.slice(0, -1), finalMessage]; // Replace loading
+            const finalSession = { ...updatedSession, messages: finalMessages };
+            const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
+            saveSessions(finalSessions);
+            
+            // Clean up
+            audio.removeEventListener('timeupdate', () => {});
             URL.revokeObjectURL(audioUrl);
           };
           
           setIsTalking(false);
           return;
+        } else {
+          // Handle other JSON responses (errors or fallback)
+          const fullAnswer = data.answer || 'Sorry, I couldn\'t generate a response.';
+
+          // Check if quota was exceeded
+          if (data.quota_exceeded) {
+            // Don't show typing animation for quota messages
+            const assistantMessage: Message = { role: 'assistant', content: fullAnswer };
+            const finalMessages = [...updatedMessages.slice(0, -1), assistantMessage]; // Replace loading
+            const finalSession = { ...updatedSession, messages: finalMessages };
+            const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
+            saveSessions(finalSessions);
+            setIsTalking(false);
+            return;
+          }
+
+          setTypingMessage('');
+          setIsTyping(true);
+          const assistantMessage: Message = { role: 'assistant', content: fullAnswer };
+          const finalMessages = [...updatedMessages.slice(0, -1), assistantMessage]; // Replace loading
+          const finalSession = { ...updatedSession, messages: finalMessages };
+          const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
+          saveSessions(finalSessions);
         }
-      }
-      
-      // Handle JSON response (for errors or fallback)
-      const data = await response.json();
-      const fullAnswer = data.answer || 'Sorry, I couldn\'t generate a response.';
-      
-      // Check if quota was exceeded
-      if (data.quota_exceeded) {
-        // Don't show typing animation for quota messages
-        const assistantMessage: Message = { role: 'assistant', content: fullAnswer };
-        const finalMessages = [...updatedMessages.slice(0, -1), assistantMessage]; // Replace loading
+      } else {
+        // Handle non-JSON responses
+        const errorMessage: Message = { role: 'assistant', content: 'Sorry, unexpected response format.' };
+        const finalMessages = [...updatedMessages.slice(0, -1), errorMessage];
         const finalSession = { ...updatedSession, messages: finalMessages };
         const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
         saveSessions(finalSessions);
-        setIsTalking(false);
-        return;
       }
-      
-      setTypingMessage('');
-      setIsTyping(true);
-      const assistantMessage: Message = { role: 'assistant', content: fullAnswer };
-      const finalMessages = [...updatedMessages.slice(0, -1), assistantMessage]; // Replace loading
-      const finalSession = { ...updatedSession, messages: finalMessages };
-      const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
-      saveSessions(finalSessions);
     } catch (error) {
       console.error('Error:', error);
       const errorMessage: Message = { role: 'assistant', content: 'Sorry, there was an error connecting to the AI.' };

@@ -93,7 +93,9 @@ def chat(request):
                     # Create a new event loop for this thread
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
-                    audio_path = loop.run_until_complete(tts.generate_speech(answer_text))
+                    audio_result = loop.run_until_complete(tts.generate_speech_with_timings(answer_text))
+                    audio_path = audio_result["audio_path"]
+                    word_timings = audio_result["word_timings"]
                     loop.close()
                     
                     # Return both text and audio
@@ -108,7 +110,8 @@ def chat(request):
                     response_data = {
                         'text': answer_text,
                         'audio': base64.b64encode(audio_data).decode('utf-8'),
-                        'filename': filename
+                        'filename': filename,
+                        'word_timings': word_timings
                     }
                     return JsonResponse(response_data)
                     
@@ -119,7 +122,9 @@ def chat(request):
                         fallback_text = "I'm sorry, there was an error generating the audio response. Please try again."
                         loop = asyncio.new_event_loop()
                         asyncio.set_event_loop(loop)
-                        audio_path = loop.run_until_complete(tts.generate_speech(fallback_text))
+                        audio_result = loop.run_until_complete(tts.generate_speech_with_timings(fallback_text))
+                        audio_path = audio_result["audio_path"]
+                        word_timings = audio_result["word_timings"]
                         loop.close()
                         
                         with open(audio_path, 'rb') as audio_file:
@@ -132,7 +137,8 @@ def chat(request):
                         response_data = {
                             'text': fallback_text,
                             'audio': base64.b64encode(audio_data).decode('utf-8'),
-                            'filename': filename
+                            'filename': filename,
+                            'word_timings': word_timings
                         }
                         return JsonResponse(response_data)
                     except Exception as fallback_error:
