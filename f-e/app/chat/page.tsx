@@ -953,7 +953,7 @@ export default function Chat() {
         <main className="flex-1 flex flex-col h-[calc(100vh-4rem)]">
 
           {/* Chat Messages */}
-          <div ref={messagesContainerRef} className="flex-1 p-3 sm:p-4 overflow-y-auto pb-20 md:pb-4">
+          <div ref={messagesContainerRef} className="flex-1 p-3 mt-8 sm:p-4 overflow-y-auto pb-20 md:pb-4">
             <div className={`max-w-4xl mx-auto space-y-3 sm:space-y-4 transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
               {currentSession ? (
                 currentSession.messages.map((message, index) => {
@@ -961,7 +961,7 @@ export default function Chat() {
                   const isLatestUserMessage = message.role === 'user' && index === currentSession.messages.findLastIndex(m => m.role === 'user');
                   return (
                   <div key={index} ref={isLatestUserMessage ? latestUserMessageRef : undefined} className={`p-3 sm:p-4 text-white backdrop-blur-lg bg-black/70 rounded-md relative z-10 transition-all duration-200 text-sm sm:text-base ${
-                    message.role === 'assistant' ? `border-l-4 border-red-500 hover:bg-black/90 hover:border-red-600 hover:shadow-md ${isLastAIMessage ? 'mb-80' : ''}` : 'border-r-4 border-blue-500 text-right hover:bg-black/90 hover:border-blue-600 hover:shadow-md'
+                    message.role === 'assistant' ? `border-l-4 border-red-500 hover:bg-black/90 hover:border-red-600 hover:shadow-md ${isLastAIMessage ? 'mb-80' : ''}` : 'border-r-4 border-blue-500 text-right hover:bg-black/90 hover:border-blue-600 hover:shadow-md md:max-w-[50%] md:ml-auto'
                   }`}>
                     {message.isLoading ? (
                       <div className="flex items-center space-x-2">
@@ -996,16 +996,8 @@ export default function Chat() {
                             ⋮
                           </button>
                         )}
-                        <div className={`text-sm ${message.role === 'user' ? 'ml-8' : ''}`}>
-                          {message.role === 'assistant' && index === currentSession.messages.length - 1 && isTyping
-                            ? typingMessage + (typingMessage.length < message.content.length ? '|' : '')
-                            : message.content.includes('<span') || message.content.includes('<br>')
-                              ? <div dangerouslySetInnerHTML={{ __html: message.content }} />
-                              : message.content
-                          }
-                        </div>
                         {message.role === 'assistant' && (
-                          <div className="flex items-center space-x-2 mt-2 ml-8">
+                          <div className="flex items-center space-x-2 mb-2 border-b-2 border-[#99999920] pb-2">
                             <button
                               className="px-3 py-1 text-xs text-black bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
                               onClick={async () => {
@@ -1057,8 +1049,17 @@ export default function Chat() {
                             >
                               🔇 Stop Audio
                             </button>
+                            <h1 className="flex font-semibold text-lg ml-auto text-yellow-500" style={{ fontFamily: 'Dancing Script, cursive' }} >Red Queen</h1>
                           </div>
                         )}
+                        <div className={`text-sm ${message.role === 'user' ? 'ml-8' : ''}`}>
+                          {message.role === 'assistant' && index === currentSession.messages.length - 1 && isTyping
+                            ? typingMessage + (typingMessage.length < message.content.length ? '|' : '')
+                            : message.content.includes('<span') || message.content.includes('<br>')
+                              ? <div dangerouslySetInnerHTML={{ __html: message.content }} />
+                              : message.content
+                          }
+                        </div>
                         {openMessageMenuId === `${index}` && message.role === 'user' && (
                           <div ref={messageMenuRef} className="absolute left-0 top-8 mt-1 w-32 bg-white border border-gray-300 rounded shadow-lg !z-[999]">
                             <button
