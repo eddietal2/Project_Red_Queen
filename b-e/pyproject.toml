@@ -26,3 +26,6 @@ dependencies = [
     "scipy",
     "gunicorn"
 ]
+
+[tool.uv]
+python-version = "3.12"
