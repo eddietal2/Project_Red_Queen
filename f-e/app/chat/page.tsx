@@ -18,6 +18,7 @@ import React from "react";
 import RedQueenAvatar from "@/components/RedQueenAvatar";
 import Link from "next/link";
 import { createPortal } from 'react-dom';
+import { Loader2 } from "lucide-react";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -44,6 +45,7 @@ export default function Chat() {
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -86,6 +88,14 @@ export default function Chat() {
     return () => {
       document.body.style.overflow = 'auto';
     };
+  }, []);
+
+  // Loading spinner effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -844,20 +854,29 @@ export default function Chat() {
 
   return (
     <>
-      {/* Collapsed Avatar */}
-      {!isSidebarOpen && (
-        <div className="fixed top-8 left-4 z-20 flex items-center space-x-2 hidden md:flex">
-          <RedQueenAvatar isTalking={isTalking} />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsSidebarOpen(true)}
-            className="ml-2"
-          >
-            →
-          </Button>
+      {isLoading ? (
+        <div className="min-h-screen flex items-center justify-center bg-rq-black">
+          <div className="text-center">
+            <Loader2 className="h-16 w-16 animate-spin text-red-500 mx-auto mb-4" />
+            <p className="text-white text-lg font-medium">Loading Red Queen...</p>
+          </div>
         </div>
-      )}
+      ) : (
+        <>
+          {/* Collapsed Avatar */}
+          {!isSidebarOpen && (
+            <div className="fixed top-8 left-4 z-20 flex items-center space-x-2 hidden md:flex">
+              <RedQueenAvatar isTalking={isTalking} />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsSidebarOpen(true)}
+                className="ml-2"
+              >
+                →
+              </Button>
+            </div>
+          )}
 
       <div className="h-screen flex relative">
         {/* Mobile Overlay Sidebar */}
@@ -1200,6 +1219,8 @@ export default function Chat() {
           </button>
         </div>,
         document.body
+      )}
+        </>
       )}
     </>
   );
