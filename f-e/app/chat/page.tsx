@@ -266,7 +266,18 @@ export default function Chat() {
 
   const deleteMessage = (messageIndex: number) => {
     if (currentSession) {
-      const updatedMessages = currentSession.messages.filter((_, index) => index !== messageIndex);
+      let indicesToDelete = [messageIndex];
+      
+      // If deleting a user message, also delete the next assistant message if it exists
+      const message = currentSession.messages[messageIndex];
+      if (message && message.role === 'user') {
+        const nextMessage = currentSession.messages[messageIndex + 1];
+        if (nextMessage && nextMessage.role === 'assistant') {
+          indicesToDelete.push(messageIndex + 1);
+        }
+      }
+      
+      const updatedMessages = currentSession.messages.filter((_, index) => !indicesToDelete.includes(index));
       const updatedSession = { ...currentSession, messages: updatedMessages };
       const updatedSessions = sessions.map(s => s.id === currentSessionId ? updatedSession : s);
       saveSessions(updatedSessions);
@@ -1160,7 +1171,7 @@ export default function Chat() {
           className="fixed w-32 bg-white border border-gray-300 rounded shadow-lg z-[9999]"
           style={{ top: messageMenuPosition!.top, left: messageMenuPosition!.left }}
         >
-          <button
+          {/* <button
             className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
             onClick={() => {
               const index = parseInt(openMessageMenuId!);
@@ -1168,7 +1179,7 @@ export default function Chat() {
             }}
           >
             Edit
-          </button>
+          </button> */}
           <button
             className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-red-600"
             onClick={() => {
