@@ -314,7 +314,6 @@ export default function Chat() {
     setTypingMessage('');
 
     // Send new request
-    setIsTalking(true);
     const loadingMessage: Message = { role: 'assistant', content: '', isLoading: true };
     let finalMessages = [...trimmedMessages, loadingMessage];
     let finalSession = { ...updatedSession, messages: finalMessages };
@@ -480,6 +479,7 @@ export default function Chat() {
             audioStarted = true;
             console.log(`Audio started playing at ${Date.now()}, beginning highlighting synchronization`);
             startHighlighting();
+            setIsTalking(true);
           });
           
           // Debug: Log when audio loads
@@ -494,6 +494,7 @@ export default function Chat() {
               highlightTimeout = null;
             }
             console.log('Audio ended, stopped highlighting');
+            setIsTalking(false);
           });
           
           // Play the audio
@@ -578,7 +579,6 @@ export default function Chat() {
     if (inputRef.current) {
       inputRef.current.value = '';
     }
-    setIsTalking(true);
     setTimeout(() => {
       const messageElement = latestUserMessageRef.current;
       if (messageElement && messagesContainerRef.current) {
@@ -735,6 +735,7 @@ export default function Chat() {
             audioStarted = true;
             console.log(`Audio started playing at ${Date.now()}, beginning highlighting synchronization`);
             startHighlighting();
+            setIsTalking(true);
           });
           
           // Debug: Log when audio loads
@@ -749,6 +750,7 @@ export default function Chat() {
               highlightTimeout = null;
             }
             console.log('Audio ended, stopped highlighting');
+            setIsTalking(false);
           });
           
           // Play the audio
@@ -1169,3 +1171,7 @@ export default function Chat() {
     </>
   );
 }
+
+
+
+

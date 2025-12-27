@@ -1193,6 +1193,13 @@ export default function RedQueenAvatar({ isTalking = false, size = 140 }: RedQue
       <path d="M0 0 C3.63 0 7.26 0 11 0 C10.01 0.33 9.02 0.66 8 1 C8 1.66 8 2.32 8 3 C5.36 2.34 2.72 1.68 0 1 C0 0.67 0 0.34 0 0 Z " fill="#2E2336" transform="translate(160,29)"/>
       <path d="M0 0 C1.98 0 3.96 0 6 0 C6 0.66 6 1.32 6 2 C3.69 2.33 1.38 2.66 -1 3 C-0.67 2.01 -0.34 1.02 0 0 Z " fill="#8A3030" transform="translate(139,10)"/>
       <path d="" fill="#000000" transform="translate(0,0)"/>
+      {isTalking && (
+        <><path d="M 145 240 Q 177 245 209 240 Q 177 235 145 240 Z" fill="#D32630">
+            <animate attributeName="d" values="M 145 240 Q 177 245 209 240 Q 177 235 145 240 Z;M 145 240 Q 177 255 209 240 Q 177 225 145 240 Z;M 145 240 Q 177 245 209 240 Q 177 235 145 240 Z;M 145 240 Q 177 250 209 240 Q 177 230 145 240 Z;M 145 240 Q 177 245 209 240 Q 177 235 145 240 Z" keyTimes="0;0.1;0.3;0.6;1" dur="1s" repeatCount="indefinite" />
+          </path><ellipse cx="177" cy="240" rx="10" ry="1" fill="#8B0000" />
+          <ellipse cx="177" cy="233" rx="5" ry="0.5" fill="#FF6B6B" />
+          <ellipse cx="177" cy="247" rx="5" ry="0.5" fill="#8B0000" /></>
+      )}
   </svg>
   </div>
   );
