@@ -13,6 +13,7 @@ import json
 import re
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
+import custom_console
 
 
 class ProjectAnalyzer:
@@ -444,26 +445,32 @@ def main():
     print(f"📊 Backend modules: {len(analyzer.backend_modules)}")
     print(f"📊 Frontend modules: {len(analyzer.frontend_modules)}")
 
+    def write_if_changed(file_path: Path, content: str, description: str):
+        """Write content to file only if it has changed."""
+        if file_path.exists():
+            with open(file_path, 'r', encoding='utf-8') as f:
+                existing = f.read()
+            if existing == content:
+                print(f"✅ {description} {custom_console.COLOR_YELLOW}unchanged:{custom_console.RESET_COLOR} {file_path.name}")
+                return
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+        print(f"✅ {description} generated: {file_path.name}")
+
     # Generate backend diagram
     backend_diagram = generate_backend_diagram(analyzer)
     backend_file = script_dir / "backend_architecture.md"
-    with open(backend_file, 'w', encoding='utf-8') as f:
-        f.write(backend_diagram)
-    print("✅ Backend architecture diagram generated: backend_architecture.md")
+    write_if_changed(backend_file, backend_diagram, "Backend architecture diagram")
 
     # Generate frontend diagram
     frontend_diagram = generate_frontend_diagram(analyzer)
     frontend_file = script_dir / "frontend_architecture.md"
-    with open(frontend_file, 'w', encoding='utf-8') as f:
-        f.write(frontend_diagram)
-    print("✅ Frontend architecture diagram generated: frontend_architecture.md")
+    write_if_changed(frontend_file, frontend_diagram, "Frontend architecture diagram")
 
     # Generate full-stack diagram
     full_stack_diagram = generate_full_stack_diagram(analyzer)
     fullstack_file = script_dir / "fullstack_architecture.md"
-    with open(fullstack_file, 'w', encoding='utf-8') as f:
-        f.write(full_stack_diagram)
-    print("✅ Full-stack architecture diagram generated: fullstack_architecture.md")
+    write_if_changed(fullstack_file, full_stack_diagram, "Full-stack architecture diagram")
 
     # Generate summary report
     report = f"""# Project_Red_Queen Architecture Analysis
@@ -496,9 +503,7 @@ def main():
 """
 
     summary_file = script_dir / "architecture_summary.md"
-    with open(summary_file, 'w', encoding='utf-8') as f:
-        f.write(report)
-    print("📋 Architecture summary generated: architecture_summary.md")
+    write_if_changed(summary_file, report, "Architecture summary")
 
 
 if __name__ == "__main__":
