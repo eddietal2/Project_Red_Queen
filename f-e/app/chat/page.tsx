@@ -33,6 +33,8 @@ interface ChatSession {
   createdAt: string;
 }
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
 // Optimized Input component with memoization
 const MemoizedInput = memo(React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>((props, ref) => {
   return <Input ref={ref} {...props} />;
@@ -358,7 +360,7 @@ export default function Chat() {
     }, 100);
 
     try {
-      const response = await fetch('http://localhost:8000/ai/chat/', {
+      const response = await fetch(`${API_BASE_URL}/ai/chat/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: editValue.trim() }),
@@ -617,7 +619,7 @@ export default function Chat() {
     }, 100);
 
     try {
-      const response = await fetch('http://localhost:8000/ai/chat/', {
+      const response = await fetch(`${API_BASE_URL}/ai/chat/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: inputValue }),

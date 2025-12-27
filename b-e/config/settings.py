@@ -24,14 +24,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 SYSTEM_PROMPT_PATH = BASE_DIR / 'system_prompt.txt'
 TEST_MODE = os.environ.get("TEST_MODE", "false").lower() == "true"
+PROD_API_URL = os.environ.get("PROD_API_URL", "")
 
-# CORS settings
+# CORS settings - Allow both development and production origins
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
     # NextJS Development IP
     'http://192.168.1.68:3000',
 ]
+
+if not TEST_MODE and PROD_API_URL:
+    CORS_ALLOWED_ORIGINS.append(f'https://{PROD_API_URL}')
+
 CORS_ALLOW_METHODS = ['GET', 'POST', 'OPTIONS']
 CORS_ALLOW_HEADERS = ['content-type']
 
@@ -43,9 +48,11 @@ CORS_ALLOW_HEADERS = ['content-type']
 SECRET_KEY = 'django-insecure-4rfh=a^^^x8*%%twvpse@+b8t*0w1&5-ek!#q0@6+k)&_goq83'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = TEST_MODE
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
+if not TEST_MODE and PROD_API_URL:
+    ALLOWED_HOSTS.append(PROD_API_URL)
 
 
 # Application definition
