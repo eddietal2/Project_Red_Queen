@@ -34,8 +34,12 @@ CORS_ALLOWED_ORIGINS = [
     'http://192.168.1.68:3000',
 ]
 
-if not TEST_MODE and PROD_API_URL:
-    CORS_ALLOWED_ORIGINS.append(f'https://{PROD_API_URL}')
+if not TEST_MODE:
+    # Add production backend origin
+    if PROD_API_URL:
+        CORS_ALLOWED_ORIGINS.append(f'https://{PROD_API_URL}')
+    # Add frontend preview origin for Vercel deployments
+    CORS_ALLOWED_ORIGINS.append('https://project-red-queen-git-main-eddie-ts-projects-101c1f08.vercel.app')
 
 CORS_ALLOW_METHODS = ['GET', 'POST', 'OPTIONS']
 CORS_ALLOW_HEADERS = ['content-type']
