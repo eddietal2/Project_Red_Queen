@@ -1,0 +1,3 @@
+[build]
+builder = "python"
+pythonVersion = "3.12"
