@@ -1204,11 +1204,12 @@ export default function RedQueenAvatar({ isTalking = false, size = 140 }: RedQue
         <animate attributeName="ry" values="0;0;7;0" keyTimes="0;0.8;0.82;1" dur="6s" repeatCount="indefinite" />
       </ellipse>
       {isTalking && (
-        <><path d="M 145 240 Q 177 245 209 240 Q 177 235 145 240 Z" fill="#D32630">
-            <animate attributeName="d" values="M 145 240 Q 177 245 209 240 Q 177 235 145 240 Z;M 145 240 Q 177 255 209 240 Q 177 225 145 240 Z;M 145 240 Q 177 245 209 240 Q 177 235 145 240 Z;M 145 240 Q 177 250 209 240 Q 177 230 145 240 Z;M 145 240 Q 177 245 209 240 Q 177 235 145 240 Z" keyTimes="0;0.1;0.3;0.6;1" dur="1s" repeatCount="indefinite" />
-          </path><ellipse cx="177" cy="240" rx="10" ry="1" fill="#8B0000" />
-          <ellipse cx="177" cy="233" rx="5" ry="0.5" fill="#FF6B6B" />
-          <ellipse cx="177" cy="247" rx="5" ry="0.5" fill="#8B0000" /></>
+        <><path d="M 145 230 Q 177 235 209 230 Q 177 225 145 230 Z" fill="#D32630">
+            <animate attributeName="d" values="M 145 230 Q 177 235 209 230 Q 177 225 145 230 Z;M 145 230 Q 177 250 209 230 Q 177 210 145 230 Z;M 145 230 Q 177 235 209 230 Q 177 225 145 230 Z;M 145 230 Q 177 245 209 230 Q 177 215 145 230 Z;M 145 230 Q 177 235 209 230 Q 177 225 145 230 Z" keyTimes="0;0.1;0.3;0.6;1" dur="1s" repeatCount="indefinite" />
+            <animate attributeName="fill" values="#D32630;#8B0000;#D32630;#8B0000;#D32630" keyTimes="0;0.1;0.3;0.6;1" dur="1s" repeatCount="indefinite" />
+          </path><ellipse cx="177" cy="230" rx="10" ry="1" fill="#8B0000" />
+          <ellipse cx="177" cy="223" rx="5" ry="0.5" fill="#FF6B6B" />
+          <ellipse cx="177" cy="237" rx="5" ry="0.5" fill="#8B0000" /></>
       )}
   </svg>
   </div>
