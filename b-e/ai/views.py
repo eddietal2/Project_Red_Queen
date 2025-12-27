@@ -58,14 +58,17 @@ def hello(request):
 
 @csrf_exempt
 def chat(request):
+    logger.error(f"Chat request received: method={request.method}, body={request.body}")
     if request.method == 'OPTIONS':
         return JsonResponse({})
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
     try:
         data = json.loads(request.body)
+        logger.error(f"Parsed data: {data}")
         question = data.get('question', '')
         if not question:
+            logger.error("Question is required but missing")
             return JsonResponse({'error': 'Question is required'}, status=400)
         
         system_prompt = load_system_prompt()
@@ -74,6 +77,8 @@ def chat(request):
         else:
             full_prompt = question
         
+        logger.error(f"Full prompt prepared: {full_prompt[:100]}...")  # Log first 100 chars
+        
         # Try up to 3 times with exponential backoff
         max_retries = 3
         for attempt in range(max_retries):
@@ -81,8 +86,11 @@ def chat(request):
                 # Only log API usage in live mode
                 if not getattr(settings, 'TEST_MODE', False):
                     log_api_usage()
+                logger.error(f"Calling LLM for attempt {attempt + 1}")
                 answer = llm.complete(full_prompt)
                 answer_text = str(answer)
+                
+                logger.error(f"LLM response received: {answer_text[:100]}...")
                 
                 # Clean wiki markup and formatting from the response
                 answer_text = clean_wiki_markup(answer_text)
@@ -156,8 +164,10 @@ def chat(request):
                 
             except Exception as e:
                 error_str = str(e)
+                logger.error(f"LLM call failed on attempt {attempt + 1}: {error_str}")
                 if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or "quota exceeded" in error_str.lower():
                     # Quota exceeded - return user-friendly message
+                    logger.error("Quota exceeded, returning user message")
                     return JsonResponse({
                         'answer': "🤖 Red Queen AI: I've reached my daily conversation limit with my current plan. This is normal for the free tier! Please try again tomorrow when my quota resets, or consider upgrading to a paid plan for unlimited conversations.\n\n💡 Tip: You can continue chatting with existing messages in your session - I remember our conversation history!",
                         'quota_exceeded': True
@@ -167,16 +177,20 @@ def chat(request):
                     print(f"Error type: {type(e)}")
                     import traceback
                     print(f"Traceback: {traceback.format_exc()}")
+                    logger.error(f"Final attempt failed: {str(e)}")
                     return JsonResponse({'error': f'AI Service temporarily unavailable. Please try again later.'}, status=500)
                 else:
                     # Wait before retrying (exponential backoff)
                     import time
                     wait_time = 2 ** attempt  # 1, 2, 4 seconds
                     print(f"Chat API Error (attempt {attempt + 1}): {str(e)}. Retrying in {wait_time}s...")
+                    logger.error(f"Retrying after {wait_time}s")
                     time.sleep(wait_time)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error: {e}")
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
     except Exception as e:
+        logger.error(f"Unexpected error in chat view: {str(e)}")
         print(f"Chat API Error: {str(e)}")
         print(f"Error type: {type(e)}")
         import traceback
