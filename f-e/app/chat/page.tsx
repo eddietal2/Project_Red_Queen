@@ -17,6 +17,7 @@ import { useEffect, useState, useRef, useCallback, useMemo, memo } from "react";
 import React from "react";
 import RedQueenAvatar from "@/components/RedQueenAvatar";
 import Link from "next/link";
+import { createPortal } from 'react-dom';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -61,6 +62,7 @@ export default function Chat() {
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [messageMenuPosition, setMessageMenuPosition] = useState<{ top: number; left: number } | null>(null);
 
   const currentSession = useMemo(() => 
     sessions.find(s => s.id === currentSessionId), 
@@ -110,6 +112,7 @@ export default function Chat() {
       }
       if (messageMenuRef.current && !messageMenuRef.current.contains(event.target as Node)) {
         setOpenMessageMenuId(null);
+        setMessageMenuPosition(null);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -269,6 +272,7 @@ export default function Chat() {
       saveSessions(updatedSessions);
     }
     setOpenMessageMenuId(null);
+    setMessageMenuPosition(null);
   };
 
   const clearMessageHighlighting = (messageIndex: number) => {
@@ -290,6 +294,7 @@ export default function Chat() {
       setEditingMessageId(`${messageIndex}`);
     }
     setOpenMessageMenuId(null);
+    setMessageMenuPosition(null);
   };
 
   const saveEdit = async (messageIndex: number) => {
@@ -908,7 +913,7 @@ export default function Chat() {
                       </button>
                     </div>
                     {openMenuId === session.id && (
-                      <div ref={menuRef} className="absolute right-0 mt-1 w-32 bg-white border border-gray-300 rounded shadow-lg z-30">
+                      <div ref={menuRef} className="absolute right-0 mt-1 w-32 bg-white border border-gray-300 rounded shadow-lg z-[9999]">
                         <button
                           className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
                           onClick={() => renameSession(session.id)}
@@ -992,6 +997,8 @@ export default function Chat() {
                             className="absolute top-2 left-2 text-gray-500 hover:text-gray-700 p-1"
                             onClick={(e) => {
                               e.stopPropagation();
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              setMessageMenuPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
                               setOpenMessageMenuId(openMessageMenuId === `${index}` ? null : `${index}`);
                             }}
                           >
@@ -1062,28 +1069,6 @@ export default function Chat() {
                               : message.content
                           }
                         </div>
-                        {openMessageMenuId === `${index}` && message.role === 'user' && (
-                          <div ref={messageMenuRef} className="absolute left-0 top-8 mt-1 w-32 bg-white border border-gray-300 rounded shadow-lg !z-[999]">
-                            <button
-                              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                              onClick={() => editMessage(index)}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-red-600"
-                              onClick={() => deleteMessage(index)}
-                            >
-                              Delete
-                            </button>
-                            <button
-                              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                              onClick={() => setOpenMessageMenuId(null)}
-                            >
-                              Close
-                            </button>
-                          </div>
-                        )}
                       </>
                     )}
                   </div>
@@ -1168,6 +1153,43 @@ export default function Chat() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {openMessageMenuId && messageMenuPosition && createPortal(
+        <div
+          ref={messageMenuRef}
+          className="fixed w-32 bg-white border border-gray-300 rounded shadow-lg z-[9999]"
+          style={{ top: messageMenuPosition!.top, left: messageMenuPosition!.left }}
+        >
+          <button
+            className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+            onClick={() => {
+              const index = parseInt(openMessageMenuId!);
+              editMessage(index);
+            }}
+          >
+            Edit
+          </button>
+          <button
+            className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-red-600"
+            onClick={() => {
+              const index = parseInt(openMessageMenuId!);
+              deleteMessage(index);
+            }}
+          >
+            Delete
+          </button>
+          <button
+            className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+            onClick={() => {
+              setOpenMessageMenuId(null);
+              setMessageMenuPosition(null);
+            }}
+          >
+            Close
+          </button>
+        </div>,
+        document.body
+      )}
     </>
   );
 }
