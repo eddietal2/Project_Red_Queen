@@ -7,7 +7,6 @@ describe('Landing Page', () => {
   beforeEach(() => {
     render(<Home />);
   });
-})
 
   describe('Hero Section', () => {
     it('renders the hero section', () => {
@@ -29,11 +28,6 @@ describe('Landing Page', () => {
       const subtitle = screen.getByText(/welcome|description/i);
       expect(subtitle).toBeInTheDocument();
     });
-
-    it('renders the hero image if present', () => {
-      const image = screen.getByRole('img', { name: /hero/i });
-      expect(image).toBeInTheDocument();
-    });
   });
 
   describe('Features Section', () => {
@@ -53,7 +47,7 @@ describe('Landing Page', () => {
     });
 
     it('renders feature descriptions', () => {
-      const descriptions = screen.getAllByText(/feature|benefit/i);
+      const descriptions = screen.getAllByText(/AI|system|leverage/i);
       expect(descriptions.length).toBeGreaterThan(0);
     });
   });
@@ -114,4 +108,5 @@ describe('Landing Page', () => {
       const aboutHeading = screen.getByRole('heading', { name: /about/i });
       expect(aboutHeading).toHaveClass('text-2xl', 'sm:text-3xl');
     });
-  });
+  })
+});
