@@ -955,7 +955,7 @@ export default function Chat() {
         <main className="flex-1 flex flex-col h-[calc(100vh-4rem)]">
 
           {/* Chat Messages */}
-          <div ref={messagesContainerRef} className="flex-1 p-3 mt-8 sm:p-4 overflow-y-auto pb-20 md:pb-4">
+          <div ref={messagesContainerRef} className="flex-1 p-3 pt-8 sm:p-4 overflow-y-auto pb-20 md:pb-4">
             <div className={`max-w-4xl mx-auto space-y-3 sm:space-y-4 transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
               {currentSession ? (
                 currentSession.messages.map((message, index) => {
