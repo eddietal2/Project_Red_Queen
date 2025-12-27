@@ -134,7 +134,7 @@ export default function RootLayout({
                 {/* Desktop: Show disclaimer, Mobile: Show menu button (only on chat page) */}
                 <div className="hidden md:block">
                   <Link href="/disclaimer">
-                    <Button className="bg-rq-red text-white hover:bg-rq-dark-red">
+                    <Button className="bg-rq-red text-white hover:bg-red-700 hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
                       Disclaimer
                     </Button>
                   </Link>
