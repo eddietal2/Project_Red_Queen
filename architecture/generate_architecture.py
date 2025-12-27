@@ -11,8 +11,13 @@ import os
 import ast
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
+
+# Add project root to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
 import custom_console
 
 

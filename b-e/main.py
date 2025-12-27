@@ -1,6 +1,11 @@
 import os
+import sys
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings
 from google_llm_init import llm, log_api_usage
+
+# Add project root to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
 import custom_console
 from datetime import datetime
 from ai.utils import clean_wiki_markup

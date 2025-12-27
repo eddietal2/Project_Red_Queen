@@ -7,6 +7,10 @@ import sys
 import json
 from datetime import datetime
 from dotenv import load_dotenv
+
+# Add project root to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
 import custom_console
 from llama_index.llms.google_genai import GoogleGenAI
 

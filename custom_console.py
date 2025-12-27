@@ -55,7 +55,7 @@ def simple_spinner(duration=3, msg="Loading Complete!"):
         time.sleep(0.1) # Controls the speed of the spin
         i += 1
     # Overwrite with final message and a newline
-    sys.stdout.write(f'{COLOR_CYAN}\r{msg}') 
+    sys.stdout.write(f'{COLOR_CYAN}\r{msg}')
     sys.stdout.flush()
     print(f'{RESET_COLOR}')
 
@@ -75,8 +75,8 @@ def process_timer_elapsed_time_success():
     print(f"\n✅ {COLOR_GREEN}Completed in {time.time() - start_time:.2f} seconds{RESET_COLOR}\n")
     print(f"{COLOR_GREEN}██████████████████{RESET_COLOR}\n")
     print(rf"""
-                    | 
-    ____________    __ {COLOR_GREEN}-+-{RESET_COLOR}  ____________ 
+                    |
+    ____________    __ {COLOR_GREEN}-+-{RESET_COLOR}  ____________
     \_____     /   /_ \{COLOR_GREEN} |{RESET_COLOR}   \     _____/
      \_____    \____/  \____/    _____/
       \_____                    _____/
