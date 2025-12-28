@@ -23,8 +23,7 @@ dependencies = [
     "pydub",
     "librosa",
     "numpy",
-    "scipy",
-    "gunicorn"
+    "scipy"
 ]
 
 [tool.uv]
