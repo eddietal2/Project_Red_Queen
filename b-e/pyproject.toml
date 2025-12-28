@@ -23,5 +23,6 @@ dependencies = [
     "pydub",
     "librosa",
     "numpy",
-    "scipy"
+    "scipy",
+    "gunicorn"
 ]
