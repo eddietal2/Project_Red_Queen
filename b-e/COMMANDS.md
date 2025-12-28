@@ -19,3 +19,9 @@ python manage.py test authentication.tests.MagicLinkAuthTests.test_email_change_
 clear; git status
 clear; git commit -am "";git push; git status
 clear; git log --oneline
+
+* Nginx 
+sudo systemctl start nginx
+sudo systemctl stop nginx
+sudo systemctl enable nginx
+sudo systemctl status nginx

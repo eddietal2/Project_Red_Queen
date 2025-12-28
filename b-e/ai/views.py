@@ -66,16 +66,16 @@ def chat(request):
     try:
         data = json.loads(request.body)
         logger.error(f"Parsed data: {data}")
-        question = data.get('question', '')
-        if not question:
-            logger.error("Question is required but missing")
-            return JsonResponse({'error': 'Question is required'}, status=400)
+        message = data.get('message', '')
+        if not message:
+            logger.error("Message is required but missing")
+            return JsonResponse({'error': 'Message is required'}, status=400)
         
         system_prompt = load_system_prompt()
         if system_prompt:
-            full_prompt = system_prompt + "\n\n" + question
+            full_prompt = system_prompt + "\n\n" + message
         else:
-            full_prompt = question
+            full_prompt = message
         
         logger.error(f"Full prompt prepared: {full_prompt[:100]}...")  # Log first 100 chars
         
