@@ -51,7 +51,7 @@ SECRET_KEY = 'django-insecure-4rfh=a^^^x8*%%twvpse@+b8t*0w1&5-ek!#q0@6+k)&_goq83
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = TEST_MODE
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', '98.92.136.118']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', 'projectredqueen-production.up.railway.app']
 if not TEST_MODE and PROD_API_URL:
     ALLOWED_HOSTS.append(PROD_API_URL)
 
