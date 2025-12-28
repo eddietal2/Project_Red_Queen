@@ -25,3 +25,5 @@ sudo systemctl start nginx
 sudo systemctl stop nginx
 sudo systemctl enable nginx
 sudo systemctl status nginx
+<!-- Test -->
+sudo nginx -t 

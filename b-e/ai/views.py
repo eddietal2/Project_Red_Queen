@@ -58,6 +58,7 @@ def hello(request):
 
 @csrf_exempt
 def chat(request):
+    print(f"Chat request received: method={request.method}, body={request.body}")
     logger.error(f"Chat request received: method={request.method}, body={request.body}")
     if request.method == 'OPTIONS':
         return JsonResponse({})
@@ -65,9 +66,11 @@ def chat(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
     try:
         data = json.loads(request.body)
+        print(f"Parsed data: {data}")
         logger.error(f"Parsed data: {data}")
         question = data.get('question', '')
         if not question:
+            print("Question is required but missing")
             logger.error("Question is required but missing")
             return JsonResponse({'error': 'Question is required'}, status=400)
         
