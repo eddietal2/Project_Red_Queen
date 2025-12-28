@@ -13,7 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useEffect, useState, useRef, useCallback, useMemo, memo } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo, memo, useLayoutEffect } from "react";
 import React from "react";
 import RedQueenAvatar from "@/components/RedQueenAvatar";
 import Link from "next/link";
@@ -147,12 +147,12 @@ export default function Chat() {
     }
   }, [isTyping, typingMessage, currentSession]);
 
-  // Scroll to bottom when current session changes
+  // Scroll to bottom when current session is loaded with messages
   useEffect(() => {
-    if (currentSessionId) {
+    if (currentSession && currentSession.messages.length > 0) {
       scrollToBottom();
     }
-  }, [currentSessionId]);
+  }, [currentSession]);
 
   const loadSessions = () => {
     const stored = localStorage.getItem('chatSessions');
@@ -212,7 +212,7 @@ export default function Chat() {
           behavior: 'smooth'
         });
       }
-    }, 900);
+    }, 1000);
   };
 
   const switchSession = (sessionId: string) => {
