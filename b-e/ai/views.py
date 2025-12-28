@@ -58,7 +58,7 @@ def hello(request):
 
 @csrf_exempt
 def chat(request):
-    print(f"Chat request received: method={request.method}, body={request.body}")
+    print(f"Chat request received: method={request.method}, body={request.body}, content_type={request.META.get('CONTENT_TYPE')}")
     logger.error(f"Chat request received: method={request.method}, body={request.body}")
     if request.method == 'OPTIONS':
         return JsonResponse({})
