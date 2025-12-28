@@ -1,3 +1,6 @@
 [build]
+builder = "python"
 pythonVersion = "3.12"
-buildCommand = "uv sync --no-dev --no-install-project && uv venv --relocatable .venv"
+
+[deploy]
+startCommand = "python manage.py runserver 0.0.0.0:$PORT"
