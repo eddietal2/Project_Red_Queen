@@ -139,7 +139,7 @@ export default function Home() {
             <div className="backdrop-blur-lg bg-black/60 rounded-xl hover:shadow-xl hover:bg-red-900/10 hover:border-rq-red/50 hover:scale-105 transition-all duration-300">
               <li className="bg-rq-black/60 p-4 sm:p-6 rounded-xl border border-[#999] shadow-lg min-h-48 sm:min-h-56 lg:min-h-64 flex flex-col justify-center">
                 <div className="mb-4 flex justify-center">
-                  <img src="/icons/llamaindex-icon.svg" alt="Llama Index" className="tech-icon scale-300 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
+                  <img src="/icons/llamaIndex-icon.svg" alt="Llama Index" className="tech-icon scale-300 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12" />
                 </div>
                 <strong className="text-yellow-500 text-sm sm:text-base">Llama Index (for RAG)</strong> - Framework for building retrieval-augmented generation applications.
               </li>
