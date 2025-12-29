@@ -38,6 +38,9 @@ export default function RootLayout({
 
   useEffect(() => {
     
+    // Set the page title
+    document.title = 'RedQueen.AI';
+    
     // Prevent mobile zoom on input focus
     const viewport = document.querySelector('meta[name="viewport"]');
     if (!viewport) {
