@@ -36,7 +36,7 @@ CORS_ALLOWED_ORIGINS = [
 
 if not TEST_MODE:
     # Add frontend origin for Vercel deployments
-    CORS_ALLOWED_ORIGINS.append('https://project-red-queen.vercel.app')
+    CORS_ALLOWED_ORIGINS.append('https://project-red-queen-xlp6.vercel.app')
 
 CORS_ALLOW_METHODS = ['GET', 'POST', 'OPTIONS']
 CORS_ALLOW_HEADERS = ['content-type']
