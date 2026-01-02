@@ -45,6 +45,7 @@ export default function Chat() {
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
   const [isTalking, setIsTalking] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
@@ -149,10 +150,10 @@ export default function Chat() {
 
   // Scroll to bottom when current session is loaded with messages
   useEffect(() => {
-    if (currentSession && currentSession.messages.length > 0) {
+    if (currentSession && currentSession.messages.length > 0 && !isAudioPlaying) {
       scrollToBottom();
     }
-  }, [currentSession]);
+  }, [currentSession, isAudioPlaying]);
 
   const loadSessions = () => {
     const stored = localStorage.getItem('chatSessions');
@@ -508,6 +509,7 @@ export default function Chat() {
             console.log(`Audio started playing at ${Date.now()}, beginning highlighting synchronization`);
             startHighlighting();
             setIsTalking(true);
+            setIsAudioPlaying(true);
           });
           
           // Debug: Log when audio loads
@@ -523,6 +525,7 @@ export default function Chat() {
             }
             console.log('Audio ended, stopped highlighting');
             setIsTalking(false);
+            setIsAudioPlaying(false);
           });
           
           // Play the audio
@@ -764,6 +767,7 @@ export default function Chat() {
             console.log(`Audio started playing at ${Date.now()}, beginning highlighting synchronization`);
             startHighlighting();
             setIsTalking(true);
+            setIsAudioPlaying(true);
           });
           
           // Debug: Log when audio loads
@@ -779,6 +783,7 @@ export default function Chat() {
             }
             console.log('Audio ended, stopped highlighting');
             setIsTalking(false);
+            setIsAudioPlaying(false);
           });
           
           // Play the audio
@@ -807,6 +812,7 @@ export default function Chat() {
             URL.revokeObjectURL(audioUrl); setCurrentAudio(null); // Clear current audio reference
             
             setIsTalking(false);
+            setIsAudioPlaying(false);
           };
           
           return;
@@ -1080,6 +1086,7 @@ export default function Chat() {
                                   currentAudio.pause();
                                   currentAudio.currentTime = 0;
                                   setIsTalking(false);
+                                  setIsAudioPlaying(false);
                                   setCurrentAudio(null);
                                 }
                                 // Clear highlighting from this specific message
