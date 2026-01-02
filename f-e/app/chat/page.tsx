@@ -1097,7 +1097,7 @@ export default function Chat() {
                             >
                               🔇 Stop Audio
                             </button>
-                            <h1 className="flex font-semibold text-lg ml-auto text-yellow-500" style={{ fontFamily: 'Dancing Script, cursive' }} >Red Queen</h1>
+                            <h1 className="flex font-semibold text-lg ml-auto text-yellow-500" style={{ fontFamily: 'Dancing Script, cursive' }} >RedQueen.AI</h1>
                           </div>
                         )}
                         <div className={`text-sm ${message.role === 'user' ? 'ml-8' : ''}`}>

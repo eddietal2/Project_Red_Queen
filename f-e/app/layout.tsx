@@ -107,9 +107,11 @@ export default function RootLayout({
                   <RedQueenAvatar isTalking={true} size={65}/>
                   <div className="w-8 h-8 bg-rq-red rounded-full"></div>
                 </div>
-                  <h1 className="text-xl text-yellow-500 font-semibold" style={{ fontFamily: 'Dancing Script, cursive' }}>
-                    RedQueen.AI
-                  </h1>
+                  {pathname === '/' && (
+                    <h1 className="text-xl text-yellow-500 font-semibold" style={{ fontFamily: 'Dancing Script, cursive' }}>
+                      RedQueen.AI
+                    </h1>
+                  )}
               </div>
               <div className="flex items-center">
                 {/* Desktop: Show disclaimer, Mobile: Show menu button (only on chat page) */}
