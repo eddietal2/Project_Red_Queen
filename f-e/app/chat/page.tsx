@@ -1131,7 +1131,7 @@ export default function Chat() {
                   ref={inputRef}
                   type="text"
                   placeholder={inputPlaceholder}
-                  className="flex-1 min-h-[44px] sm:min-h-[48px] bg-white/90 focus:bg-white focus:ring-2 focus:ring-red-500 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base"
+                  className="flex-1 min-h-[44px] sm:min-h-[48px] bg-white/90 focus:bg-white focus:ring-2 focus:ring-red-500 px-3 sm:px-4 py-2 sm:py-3 text-base"
                   defaultValue=""
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                   disabled={!currentSession}
