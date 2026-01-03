@@ -886,7 +886,7 @@ export default function Chat() {
             </div>
           )}
 
-      <div className="h-screen flex relative">
+      <div className="fixed inset-0 flex overflow-hidden">
         {/* Mobile Overlay Sidebar */}
         {isSidebarOpen && (
           <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsSidebarOpen(false)} />
@@ -995,7 +995,7 @@ export default function Chat() {
         )}
 
         {/* Main Chat Area */}
-        <main className="flex-1 flex flex-col h-screen md:h-[calc(100vh-4rem)]">
+        <main ref={messagesContainerRef} className="flex-1 flex flex-col overflow-y-auto">
 
           {/* Chat Messages */}
           <div ref={messagesContainerRef} className="flex-1 p-3 pt-8 sm:p-4 overflow-y-auto pb-20 md:pb-4">
