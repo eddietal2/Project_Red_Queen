@@ -477,14 +477,11 @@ export default function Chat() {
   const saveEdit = async (messageIndex: number) => {
     if (!currentSession || !editValue.trim()) return;
 
-    // Update the user message
-    const updatedMessages = [...currentSession.messages];
-    updatedMessages[messageIndex] = { ...updatedMessages[messageIndex], content: editValue.trim() };
-
-    // Remove any subsequent messages (AI response and beyond)
-    const trimmedMessages = updatedMessages.slice(0, messageIndex + 1);
-
-    const updatedSession = { ...currentSession, messages: trimmedMessages };
+    // Add the edited text as a new user message at the end
+    const userMessage: Message = { role: 'user', content: editValue.trim() };
+    const loadingMessage: Message = { role: 'assistant', content: '', isLoading: true };
+    const updatedMessages = [...currentSession.messages, userMessage, loadingMessage];
+    const updatedSession = { ...currentSession, messages: updatedMessages };
     const updatedSessions = sessions.map(s => s.id === currentSessionId ? updatedSession : s);
     saveSessions(updatedSessions);
 
@@ -494,13 +491,6 @@ export default function Chat() {
     // Stop any ongoing typing
     setIsTyping(false);
     setTypingMessage('');
-
-    // Send new request
-    const loadingMessage: Message = { role: 'assistant', content: '', isLoading: true };
-    let finalMessages = [...trimmedMessages, loadingMessage];
-    let finalSession = { ...updatedSession, messages: finalMessages };
-    const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
-    saveSessions(finalSessions);
 
     setTimeout(() => {
       const messageElement = latestUserMessageRef.current;
@@ -514,6 +504,7 @@ export default function Chat() {
     }, 100);
 
     try {
+
       const response = await fetch(`${API_BASE_URL}/ai/chat/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -606,8 +597,8 @@ export default function Chat() {
               role: 'assistant', 
               content: highlightedText 
             };
-            finalMessages = [...finalMessages.slice(0, -1), highlightedMessage];
-            finalSession = { ...finalSession, messages: finalMessages };
+            const finalMessages = [...updatedMessages.slice(0, -1), highlightedMessage];
+            const finalSession = { ...updatedSession, messages: finalMessages };
             const updatedSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
             saveSessions(updatedSessions);
           };
@@ -697,8 +688,8 @@ export default function Chat() {
               role: 'assistant', 
               content: data.text_html || data.text 
             };
-            finalMessages = [...finalMessages.slice(0, -1), finalMessage];
-            finalSession = { ...finalSession, messages: finalMessages };
+            const finalMessages = [...updatedMessages.slice(0, -1), finalMessage];
+            const finalSession = { ...updatedSession, messages: finalMessages };
             const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
             saveSessions(finalSessions);
             
@@ -718,8 +709,8 @@ export default function Chat() {
           if (data.quota_exceeded) {
             // Don't show typing animation for quota messages
             const assistantMessage: Message = { role: 'assistant', content: fullAnswer };
-            const finalMessages2 = [...finalMessages.slice(0, -1), assistantMessage];
-            const finalSession2 = { ...finalSession, messages: finalMessages2 };
+            const finalMessages2 = [...updatedMessages.slice(0, -1), assistantMessage];
+            const finalSession2 = { ...updatedSession, messages: finalMessages2 };
             const finalSessions2 = sessions.map(s => s.id === currentSessionId ? finalSession2 : s);
             saveSessions(finalSessions2);
             setIsTalking(false);
@@ -729,8 +720,8 @@ export default function Chat() {
           setTypingMessage('');
           setIsTyping(true);
           const assistantMessage: Message = { role: 'assistant', content: fullAnswer };
-          const finalMessages2 = [...finalMessages.slice(0, -1), assistantMessage];
-          const finalSession2 = { ...finalSession, messages: finalMessages2 };
+          const finalMessages2 = [...updatedMessages.slice(0, -1), assistantMessage];
+          const finalSession2 = { ...updatedSession, messages: finalMessages2 };
           const finalSessions2 = sessions.map(s => s.id === currentSessionId ? finalSession2 : s);
           saveSessions(finalSessions2);
           setIsTalking(false);
@@ -739,8 +730,8 @@ export default function Chat() {
     } catch (error) {
       console.error('Error:', error);
       const errorMessage: Message = { role: 'assistant', content: 'Sorry, there was an error connecting to the AI.' };
-      const finalMessages2 = [...finalMessages.slice(0, -1), errorMessage];
-      const finalSession2 = { ...finalSession, messages: finalMessages2 };
+      const finalMessages2 = [...updatedMessages.slice(0, -1), errorMessage];
+      const finalSession2 = { ...updatedSession, messages: finalMessages2 };
       const finalSessions2 = sessions.map(s => s.id === currentSessionId ? finalSession2 : s);
       saveSessions(finalSessions2);
     } finally {
@@ -1179,7 +1170,7 @@ export default function Chat() {
                           autoFocus
                         />
                         <Button onClick={() => saveEdit(index)} size="sm">Save</Button>
-                        <Button onClick={() => setEditingMessageId(null)} variant="outline" size="sm">Cancel</Button>
+                        <Button onClick={() => setEditingMessageId(null)} variant="outline" size="sm" className="text-black">Cancel</Button>
                       </div>
                     ) : (
                       <>
@@ -1381,7 +1372,7 @@ export default function Chat() {
           className="fixed w-32 bg-white border border-gray-300 rounded shadow-lg z-[9999]"
           style={{ top: messageMenuPosition!.top, left: messageMenuPosition!.left }}
         >
-          {/* <button
+          <button
             className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
             onClick={() => {
               const index = parseInt(openMessageMenuId!);
@@ -1389,7 +1380,7 @@ export default function Chat() {
             }}
           >
             Edit
-          </button> */}
+          </button>
           <button
             className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-red-600"
             onClick={() => {
