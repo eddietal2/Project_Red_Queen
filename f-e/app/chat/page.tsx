@@ -68,6 +68,8 @@ export default function Chat() {
   const [editValue, setEditValue] = useState('');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [messageMenuPosition, setMessageMenuPosition] = useState<{ top: number; left: number } | null>(null);
+  const [currentPlayingMessageIndex, setCurrentPlayingMessageIndex] = useState<number | null>(null);
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState<number | null>(null);
 
   const currentSession = useMemo(() => 
     sessions.find(s => s.id === currentSessionId), 
@@ -309,6 +311,157 @@ export default function Chat() {
       const updatedSession = { ...currentSession, messages: updatedMessages };
       const updatedSessions = sessions.map(s => s.id === currentSessionId ? updatedSession : s);
       saveSessions(updatedSessions);
+    }
+  };
+
+  const playMessageAudio = async (messageIndex: number) => {
+    if (!currentSession) return;
+
+    const message = currentSession.messages[messageIndex];
+    if (!message || message.role !== 'assistant') return;
+
+    // Set loading state
+    setLoadingMessageIndex(messageIndex);
+
+    // Stop any currently playing audio
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      setIsTalking(false);
+      setIsAudioPlaying(false);
+      setCurrentAudio(null);
+      setCurrentPlayingMessageIndex(null);
+    }
+
+    // Clear highlighting from all messages first
+    currentSession.messages.forEach((_, index) => {
+      clearMessageHighlighting(index);
+    });
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/ai/chat/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: message.content }),
+      });
+
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+
+        if (data.text && data.audio) {
+          const audioData = Uint8Array.from(atob(data.audio), c => c.charCodeAt(0));
+          const audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          const audio = new Audio(audioUrl);
+          setCurrentAudio(audio);
+          setCurrentPlayingMessageIndex(messageIndex);
+
+          const wordTimings = data.word_timings || [];
+
+          let currentWordIndex = -1;
+          let audioStarted = false;
+          let highlightTimeout: NodeJS.Timeout | null = null;
+
+          const highlightWord = (wordIndex: number) => {
+            if (wordIndex < 0 || wordIndex >= wordTimings.length) return;
+
+            currentWordIndex = wordIndex;
+            const timing = wordTimings[wordIndex];
+            const wordToHighlight = timing.word;
+
+            let highlightedText = data.text_html || data.text;
+            highlightedText = highlightedText.replace(/<span class="bg-yellow-300[^>]*>.*?<\/span>/g, (match: string) => {
+              return match.replace(/<span[^>]*>(.*?)<\/span>/, '$1');
+            });
+
+            const segments = highlightedText.split(/(\s+)/);
+            let targetOccurrence = 0;
+            for (let i = 0; i <= wordIndex; i++) {
+              if (wordTimings[i].word.toLowerCase() === wordToHighlight.toLowerCase()) {
+                targetOccurrence++;
+              }
+            }
+
+            let currentOccurrence = 0;
+            let replacementMade = false;
+
+            const highlightedSegments = segments.map((segment: any) => {
+              if (!segment.trim()) return segment;
+
+              const cleanWord = segment.replace(/[.,!?;:""''()]/g, '');
+
+              if (cleanWord.toLowerCase() === wordToHighlight.toLowerCase()) {
+                currentOccurrence++;
+                if (!replacementMade && currentOccurrence === targetOccurrence) {
+                  replacementMade = true;
+                  return `<span class="bg-yellow-300 text-black">${segment}</span>`;
+                }
+              }
+              return segment;
+            });
+
+            highlightedText = highlightedSegments.join('');
+
+            const highlightedMessage: Message = {
+              role: 'assistant',
+              content: highlightedText
+            };
+            const finalMessages = [...currentSession.messages.slice(0, messageIndex), highlightedMessage, ...currentSession.messages.slice(messageIndex + 1)];
+            const finalSession = { ...currentSession, messages: finalMessages };
+            const finalSessions = sessions.map(s => s.id === currentSessionId ? finalSession : s);
+            saveSessions(finalSessions);
+          };
+
+          const checkHighlighting = () => {
+            if (!audioStarted || wordTimings.length === 0) return;
+
+            const currentTime = audio.currentTime;
+            let targetWordIndex = -1;
+            for (let i = 0; i < wordTimings.length; i++) {
+              const timing = wordTimings[i];
+              if (currentTime >= timing.start && currentTime < timing.end) {
+                targetWordIndex = i;
+                break;
+              }
+            }
+
+            if (targetWordIndex !== -1 && targetWordIndex !== currentWordIndex) {
+              highlightWord(targetWordIndex);
+            }
+          };
+
+          const startHighlighting = () => {
+            highlightTimeout = setInterval(checkHighlighting, 5);
+          };
+
+          audio.addEventListener('playing', () => {
+            audioStarted = true;
+            startHighlighting();
+            setIsTalking(true);
+            setIsAudioPlaying(true);
+            setLoadingMessageIndex(null);
+          });
+
+          audio.addEventListener('ended', () => {
+            if (highlightTimeout) {
+              clearInterval(highlightTimeout);
+              highlightTimeout = null;
+            }
+            setIsTalking(false);
+            setIsAudioPlaying(false);
+            setCurrentPlayingMessageIndex(null);
+            URL.revokeObjectURL(audioUrl);
+            setCurrentAudio(null);
+          });
+
+          audio.play();
+        }
+      }
+    } catch (error) {
+      console.error('Error playing message audio:', error);
+      setCurrentPlayingMessageIndex(null);
+      setLoadingMessageIndex(null);
     }
   };
 
@@ -1080,22 +1233,51 @@ export default function Chat() {
                               {copySuccess === `${index}` ? '✅ Copied!' : '📋 Copy'}
                             </button>
                             <button
-                              className="px-3 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              className={`px-3 py-1 text-xs rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                                currentPlayingMessageIndex === index
+                                  ? 'bg-red-100 hover:bg-red-200 text-red-700'
+                                  : loadingMessageIndex === index
+                                  ? 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                                  : 'bg-green-100 hover:bg-green-200 text-green-700'
+                              }`}
                               onClick={() => {
-                                if (currentAudio) {
-                                  currentAudio.pause();
-                                  currentAudio.currentTime = 0;
-                                  setIsTalking(false);
-                                  setIsAudioPlaying(false);
-                                  setCurrentAudio(null);
+                                if (currentPlayingMessageIndex === index) {
+                                  // Stop current audio for this message
+                                  if (currentAudio) {
+                                    currentAudio.pause();
+                                    currentAudio.currentTime = 0;
+                                    setIsTalking(false);
+                                    setIsAudioPlaying(false);
+                                    setCurrentAudio(null);
+                                  }
+                                  setCurrentPlayingMessageIndex(null);
+                                  // Clear highlighting from this specific message
+                                  clearMessageHighlighting(index);
+                                } else {
+                                  // Restart audio for this message
+                                  playMessageAudio(index);
                                 }
-                                // Clear highlighting from this specific message
-                                clearMessageHighlighting(index);
                               }}
-                              disabled={!currentAudio}
-                              title="Stop audio playback"
+                              disabled={currentPlayingMessageIndex === index ? !currentAudio : loadingMessageIndex === index}
+                              title={
+                                currentPlayingMessageIndex === index
+                                  ? "Stop audio playback"
+                                  : loadingMessageIndex === index
+                                  ? "Loading audio..."
+                                  : "Restart audio playback"
+                              }
                             >
-                              🔇 Stop Audio
+                              {currentPlayingMessageIndex === index
+                                ? '🔇 Stop Audio'
+                                : loadingMessageIndex === index
+                                ? (
+                                  <>
+                                    <Loader2 className="inline w-3 h-3 mr-1 animate-spin" />
+                                    Loading...
+                                  </>
+                                )
+                                : '🔊 Restart Audio'
+                              }
                             </button>
                             <h1 className="flex font-semibold text-lg ml-auto text-yellow-500" style={{ fontFamily: 'Dancing Script, cursive' }} >RedQueen.AI</h1>
                           </div>
