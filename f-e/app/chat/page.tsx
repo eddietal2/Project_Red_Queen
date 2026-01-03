@@ -18,7 +18,7 @@ import React from "react";
 import RedQueenAvatar from "@/components/RedQueenAvatar";
 import Link from "next/link";
 import { createPortal } from 'react-dom';
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronDown } from "lucide-react";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -922,7 +922,7 @@ export default function Chat() {
             </Link>
           </div>
           {/* Chat History */}
-          <div className="flex-1 p-4">
+          <div className="flex-1 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-red-600 scrollbar-track-blue-900">
             <h2 className="text-md font-semibold text-white mb-4">Chat Sessions</h2>
             <div className="space-y-2">
               {sessions.length === 0 ? (
@@ -995,7 +995,7 @@ export default function Chat() {
         )}
 
         {/* Main Chat Area */}
-        <main ref={messagesContainerRef} className="flex-1 flex flex-col overflow-y-auto">
+        <main className="flex-1 flex flex-col">
 
           {/* Chat Messages */}
           <div ref={messagesContainerRef} className="flex-1 p-3 pt-8 sm:p-4 overflow-y-auto pb-20 md:pb-4">
@@ -1229,6 +1229,23 @@ export default function Chat() {
         </div>,
         document.body
       )}
+
+      {/* Scroll to Bottom Button - Always Visible */}
+      <button
+        onClick={() => {
+          if (messagesContainerRef.current) {
+            messagesContainerRef.current.scrollTo({
+              top: messagesContainerRef.current.scrollHeight,
+              behavior: 'smooth'
+            });
+          }
+        }}
+        className="fixed bottom-20 right-4 md:bottom-24 md:right-6 z-40 bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+        aria-label="Scroll to bottom"
+      >
+        <ChevronDown className="w-5 h-5" />
+      </button>
+
         </>
       )}
     </>
