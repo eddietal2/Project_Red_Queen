@@ -1053,7 +1053,7 @@ export default function Chat() {
               variant="outline"
               size="sm"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="w-full px-3 py-2 text-sm md:text-base"
+              className="w-full px-3 py-2 text-sm md:text-base bg-gray-700 text-white hover:bg-rq-dark-red"
             >
               {isSidebarOpen ? '← Close' : '☰ Menu'}
             </Button>
@@ -1063,11 +1063,11 @@ export default function Chat() {
             <RedQueenAvatar isTalking={isTalking} />
           </div>
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-            <Button className="w-full" onClick={createNewSession}>New Chat</Button>
+            <Button className="w-full bg-red-600 hover:bg-red-700 text-white" onClick={createNewSession}>New Chat</Button>
           </div>
           <div className="p-4 border-b border-gray-200 dark:border-gray-700 md:hidden">
             <Link href="/disclaimer">
-              <Button className="w-full bg-rq-red text-white hover:bg-rq-dark-red">Disclaimer</Button>
+              <Button className="w-full bg-gray-700 text-white hover:bg-rq-dark-red">Disclaimer</Button>
             </Link>
           </div>
           {/* Chat History */}
@@ -1147,7 +1147,7 @@ export default function Chat() {
         <main className="flex-1 flex flex-col">
 
           {/* Chat Messages */}
-          <div ref={messagesContainerRef} className="flex-1 p-3 pt-8 sm:p-4 overflow-y-auto pb-20 md:pb-4">
+          <div ref={messagesContainerRef} className="flex-1 p-3 pt-32 lg:mt-18 sm:p-4 overflow-y-auto pb-20 md:pb-4">
             <div className={`max-w-4xl mx-auto space-y-3 sm:space-y-4 transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
               {currentSession ? (
                 currentSession.messages.map((message, index) => {
@@ -1292,8 +1292,8 @@ export default function Chat() {
                   );
                 })
               ) : (
-                <div className="text-center py-8 sm:py-12 lg:mt-20 bg-white/10 backdrop-blur-lg rounded-md px-4 sm:px-6">
-                  <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-red-500 via-yellow-500 to-black bg-clip-text text-transparent mt-4">Welcome to Red Queen AI</h2>
+                <div className="text-center py-8 sm:py-12 mt-24 lg:mt-20 bg-black/60 backdrop-blur-lg rounded-md px-4 sm:px-6">
+                  <h2 className="text-3xl text-yellow-500 font-bold" style={{ fontFamily: 'Dancing Script, cursive' }}>Welcome to RedQueen.AI</h2>
                   <p className="text-white mt-2 text-sm sm:text-base">Create a new chat session to get started with your AI assistant.</p>
                   <Button className="mt-4 red-button" onClick={createNewSession}>Start New Chat</Button>
                 </div>

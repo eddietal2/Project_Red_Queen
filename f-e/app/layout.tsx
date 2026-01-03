@@ -95,49 +95,51 @@ export default function RootLayout({
         <div className="absolute inset-0 z-5 bg-gradient-to-b from-transparent to-rq-black"></div>
         <div className="relative z-10">
           {/* Navigation */}
-          <nav
-            role="navigation"
-            className="bg-black/40 backdrop-blur-lg shadow-md py-4 px-4 fixed top-0 w-full z-20 border-b border-rq-red/20"
-          >
-            <div className="max-w-4xl mx-auto flex justify-between items-center">
-              <div className="flex items-center">
-                <BackButton />
-                <div className="md:hidden items-center flex">
-                  {/* Placeholder for RedQueenAvatar - component not found */}
-                  <RedQueenAvatar isTalking={true} size={65}/>
-                  <div className="w-8 h-8 bg-rq-red rounded-full"></div>
-                </div>
-                  {pathname === '/' && (
-                    <h1 className="text-xl text-yellow-500 font-semibold" style={{ fontFamily: 'Dancing Script, cursive' }}>
-                      RedQueen.AI
-                    </h1>
-                  )}
-              </div>
-              <div className="flex items-center">
-                {/* Desktop: Show disclaimer, Mobile: Show menu button (only on chat page) */}
-                <div className="hidden md:block">
-                  <Link href="/disclaimer">
-                    <Button className="bg-rq-red text-white hover:bg-red-700 hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
-                      Disclaimer
-                    </Button>
-                  </Link>
-                </div>
-                {pathname === '/chat' && (
-                  <div className="md:hidden">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={toggleMobileMenu}
-                      className="px-3 py-2 text-sm"
-                    >
-                      {isMobileMenuOpen ? '✕' : '☰'}
-                    </Button>
+          {!isMobileMenuOpen && (
+            <nav
+              role="navigation"
+              className="bg-black/40 backdrop-blur-lg shadow-md py-4 px-4 fixed top-0 w-full z-20 border-b border-rq-red/20"
+            >
+              <div className="max-w-4xl mx-auto flex justify-between items-center">
+                <div className="flex items-center">
+                  <BackButton />
+                  <div className="md:hidden items-center flex">
+                    {/* Placeholder for RedQueenAvatar - component not found */}
+                    <RedQueenAvatar isTalking={true} size={65}/>
+                    <div className="w-8 h-8 bg-rq-red rounded-full"></div>
                   </div>
-                )}
+                    {pathname === '/' && (
+                      <h1 className="text-xl text-yellow-500 font-semibold" style={{ fontFamily: 'Dancing Script, cursive' }}>
+                        RedQueen.AI
+                      </h1>
+                    )}
+                </div>
+                <div className="flex items-center">
+                  {/* Desktop: Show disclaimer, Mobile: Show menu button (only on chat page) */}
+                  <div className="hidden md:block">
+                    <Link href="/disclaimer">
+                      <Button className="bg-rq-red text-white hover:bg-red-700 hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+                        Disclaimer
+                      </Button>
+                    </Link>
+                  </div>
+                  {pathname === '/chat' && (
+                    <div className="md:hidden">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={toggleMobileMenu}
+                        className="px-3 py-2 text-sm bg-gray-700/50 hover:bg-gray-600/70 focus:ring-2 focus:ring-offset-2 focus:ring-rq-red text-white rounded-md transition-all duration-200"
+                      >
+                        {isMobileMenuOpen ? '✕' : '☰'}
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          </nav>
-          <main className="pt-16">{children}</main>
+            </nav>
+          )}
+          <main className={!isMobileMenuOpen ? "pt-16" : ""}>{children}</main>
           {/* Footer Section */}
           <div className="backdrop-blur-lg bg-rq-black/90">
             <Footer />
