@@ -79,11 +79,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${jura.variable} ${dancing_script.variable} min-h-screen font-jura`}
+        className={`${jura.variable} ${dancing_script.variable} min-h-screen font-jura bg-auto md:bg-cover`}
         style={{
           backgroundImage: 'url(/images/the_hive_visual.jpg)',
-          backgroundPosition: 'bottom',
-          backgroundSize: 'cover',
+          backgroundPosition: 'center center',
+          backgroundSize: '90%',
           backgroundRepeat: 'no-repeat',
           backgroundAttachment: 'fixed',
           backgroundColor: '#000000', // Fallback to black if image fails
