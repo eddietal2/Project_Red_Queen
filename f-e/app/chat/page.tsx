@@ -440,6 +440,7 @@ export default function Chat() {
             startHighlighting();
             setIsTalking(true);
             setIsAudioPlaying(true);
+            setCurrentPlayingMessageIndex(messageIndex);
             setLoadingMessageIndex(null);
           });
 
@@ -750,6 +751,8 @@ export default function Chat() {
     const updatedSessions = sessions.map(s => s.id === currentSessionId ? updatedSession : s);
     saveSessions(updatedSessions);
 
+    setCurrentPlayingMessageIndex(updatedMessages.length - 1);
+
     // Clear the input
     if (inputRef.current) {
       inputRef.current.value = '';
@@ -783,6 +786,7 @@ export default function Chat() {
           const audioBlob = new Blob([audioData], { type: 'audio/mpeg' });
           const audioUrl = URL.createObjectURL(audioBlob);
           const audio = new Audio(audioUrl); setCurrentAudio(audio); // Track current audio for stopping
+          const messageIndex = currentSession.messages.length - 1;
           
           // Use precise word timings from backend
           const wordTimings = data.word_timings || [];
@@ -955,6 +959,7 @@ export default function Chat() {
             audio.removeEventListener('timeupdate', () => {});
             URL.revokeObjectURL(audioUrl); setCurrentAudio(null); // Clear current audio reference
             
+            setCurrentPlayingMessageIndex(null);
             setIsTalking(false);
             setIsAudioPlaying(false);
           };
