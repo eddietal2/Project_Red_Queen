@@ -4,18 +4,29 @@ import asyncio
 import edge_tts
 from pathlib import Path
 import time
+import tempfile
 
 class TTSModule:
     def __init__(self):
         # Use the British child female voice that best matches the reference
         self.voice = "en-GB-MaisieNeural"  # British child female voice
 
+    def _get_output_path(self):
+        """Get a writable output path, using /tmp on serverless platforms."""
+        timestamp = int(time.time() * 1000)
+        # Try local path first, fall back to /tmp for serverless (Vercel)
+        local_path = Path(__file__).parent / "generated_audio"
+        try:
+            local_path.mkdir(exist_ok=True)
+            return local_path / f"speech_{timestamp}.mp3"
+        except OSError:
+            tmp_path = Path(tempfile.gettempdir()) / "generated_audio"
+            tmp_path.mkdir(exist_ok=True)
+            return tmp_path / f"speech_{timestamp}.mp3"
+
     async def generate_speech_with_timings(self, text: str) -> dict:
         """Generate speech from text and extract word-level timings."""
-        # Use path relative to the ai directory with timestamp
-        timestamp = int(time.time() * 1000)  # milliseconds for uniqueness
-        output_path = Path(__file__).parent / "generated_audio" / f"speech_{timestamp}.mp3"
-        output_path.parent.mkdir(exist_ok=True)
+        output_path = self._get_output_path()
 
         communicate = edge_tts.Communicate(text, self.voice, boundary="WordBoundary")
 
@@ -42,10 +53,7 @@ class TTSModule:
 
     async def generate_speech(self, text: str) -> str:
         """Generate speech from text using Edge-TTS."""
-        # Use path relative to the ai directory with timestamp
-        timestamp = int(time.time() * 1000)  # milliseconds for uniqueness
-        output_path = Path(__file__).parent / "generated_audio" / f"speech_{timestamp}.mp3"
-        output_path.parent.mkdir(exist_ok=True)
+        output_path = self._get_output_path()
 
         communicate = edge_tts.Communicate(text, self.voice)
         await communicate.save(str(output_path))
