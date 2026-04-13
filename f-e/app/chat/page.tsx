@@ -966,8 +966,8 @@ export default function Chat() {
           
           return;
         } else {
-          // Handle other JSON responses (errors or fallback)
-          const fullAnswer = data.answer || 'Sorry, I couldn\'t generate a response.';
+          // Handle text-only responses (no audio) or other JSON responses
+          const fullAnswer = data.text_html || data.text || data.answer || 'Sorry, I couldn\'t generate a response.';
 
           // Check if quota was exceeded
           if (data.quota_exceeded) {

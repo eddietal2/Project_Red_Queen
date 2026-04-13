@@ -30,7 +30,10 @@ PROD_API_URL = os.environ.get("PROD_API_URL", "")
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
     # NextJS Development IP
+    'http://192.168.0.134:3000',
     'http://192.168.1.68:3000',
 ]
 
@@ -51,7 +54,7 @@ SECRET_KEY = 'django-insecure-4rfh=a^^^x8*%%twvpse@+b8t*0w1&5-ek!#q0@6+k)&_goq83
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = TEST_MODE
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', 'projectredqueen-production.up.railway.app']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', 'project-red-queen-b-e.vercel.app']
 if not TEST_MODE and PROD_API_URL:
     ALLOWED_HOSTS.append(PROD_API_URL)
 

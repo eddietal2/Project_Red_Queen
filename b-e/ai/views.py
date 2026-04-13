@@ -104,6 +104,17 @@ def chat(request):
                 # Generate speech from the answer (use original text for TTS, not HTML)
                 tts = TTSModule()
                 
+                # If TTS is disabled (Vercel deployment), return text-only response
+                if not getattr(tts, 'enabled', True):
+                    response_data = {
+                        'text': answer_text,
+                        'text_html': answer_text_html,
+                        'audio': None,
+                        'filename': None,
+                        'word_timings': []
+                    }
+                    return JsonResponse(response_data)
+                
                 # Handle async TTS generation in sync context
                 import asyncio
                 try:

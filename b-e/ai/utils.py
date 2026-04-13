@@ -10,7 +10,22 @@ from django.conf import settings
 
 # Load environment variables (in case settings.py hasn't loaded them yet)
 load_dotenv()
-from llama_index.llms.google_genai import GoogleGenAI
+from google import genai
+
+class GoogleGenAIWrapper:
+    """Wrapper for google.genai to match expected interface"""
+    
+    def __init__(self, model, api_key):
+        self.model = model
+        self.client = genai.Client(api_key=api_key)
+    
+    def complete(self, prompt):
+        """Send prompt to Gemini and return response text"""
+        response = self.client.models.generate_content(
+            model=self.model,
+            contents=prompt,
+        )
+        return response.text
 
 class MockLLM:
     """Mock LLM for testing that doesn't use API calls"""
@@ -84,7 +99,7 @@ if test_mode:
 else:
     # Initialize Google API Key & Model with error handling
     try:
-        llm = GoogleGenAI(
+        llm = GoogleGenAIWrapper(
             # https://ai.google.dev/gemini-api/docs/models
             model=chosenModelType,
             api_key=settings.GOOGLE_API_KEY,

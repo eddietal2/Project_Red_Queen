@@ -1,5 +1,5 @@
 """
-Initializes Llama Index's Google AI integration.
+Initializes Google's Generative AI integration.
 """
 
 import os
@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 import custom_console
-from llama_index.llms.google_genai import GoogleGenAI
+from google import genai
 
 # Load environment variables from .env file
 try:
@@ -22,6 +22,21 @@ except UnicodeDecodeError:
 
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 TEST_MODE = os.environ.get("TEST_MODE")
+
+class GoogleGenAIWrapper:
+    """Wrapper for google.genai to match expected interface"""
+    
+    def __init__(self, model, api_key):
+        self.model = model
+        self.client = genai.Client(api_key=api_key)
+    
+    def complete(self, prompt):
+        """Send prompt to Gemini and return response text"""
+        response = self.client.models.generate_content(
+            model=self.model,
+            contents=prompt,
+        )
+        return response.text
 
 class MockLLM:
     """Mock LLM for testing that doesn't use API calls"""
@@ -91,7 +106,7 @@ if TEST_MODE:
 else:
     # Initialize Google API Key & Model with error handling
     try:
-        llm = GoogleGenAI(
+        llm = GoogleGenAIWrapper(
             # https://ai.google.dev/gemini-api/docs/models
             model="gemini-2.5-flash",
             api_key=GOOGLE_API_KEY,
