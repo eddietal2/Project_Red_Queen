@@ -142,7 +142,7 @@ export default function Chat() {
       if (typingMessage.length < fullMessage.length) {
         const timer = setTimeout(() => {
           setTypingMessage(fullMessage.slice(0, typingMessage.length + 1));
-        }, 10); // Adjust speed here
+        }, 2); // Adjust speed here
         return () => clearTimeout(timer);
       } else {
         setIsTyping(false);
