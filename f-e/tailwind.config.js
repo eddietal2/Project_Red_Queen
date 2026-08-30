@@ -14,6 +14,7 @@ module.exports = {
         'rq-black': '#121212',
         'rq-light-blue': '#1e3a5f',
         'rq-dark-red': '#b71c1c',
+        'rq-light-gray': '#f5f5f5',
       },
       fontFamily: {
         'jura': ['var(--font-jura)'],

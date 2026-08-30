@@ -34,7 +34,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:3000',
     # NextJS Development IP
     'http://192.168.0.134:3000',
-    'http://192.168.1.68:3000',
+    'http://192.168.0.134:3000',
 ]
 
 if not TEST_MODE:
